@@ -20,7 +20,18 @@ def index():
     response.flash = T("Welcome to web2py!")
     return dict(message=T('Hello World'))
 
+@auth.requires_login()
 def feed():
+    print auth.user
+    #print dir(request)
+    result = db(db.feed_conf.feed_owner == auth.user).select().first()
+    if result == None:
+        return "Not Authorized"
+
+    #start building authentication and authorization.
+    #    only allow users that create a feed to watch it
+    #    allow other users to get permission to view a feed
+
     rows = db(db.feed_data).select(join=db.feed_axis.on(db.feed_data.id == db.feed_axis.feed_conf_id))
     return dict(rows=rows)
 

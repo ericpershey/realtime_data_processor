@@ -69,8 +69,9 @@ auth.settings.reset_password_requires_verification = True
 #Table Definitions
 db.define_table("feed_conf",
     Field('name', 'string'),
-    Field('x_cast', 'string'), #this will hold the name of the type the x should be case to
-    Field('y_cast', 'string'), #this will hold the name of the type the y should be case to
+    Field('x_cast', 'string'), #this will hold the name of the type the x should be cast to
+    Field('y_cast', 'string'), #this will hold the name of the type the y should be cast to
+    Field("feed_owner", 'reference auth_user'),
     auth.signature,
     )
 
@@ -93,8 +94,9 @@ if db(db.feed_conf).isempty():
     db.feed_data.truncate()
     db.feed_axis.truncate()
     db.feed_conf.truncate()
+    feed_owner = db(db.auth_user.email == 'eric.pershey@gmail.com').select().first()
 
-    feed_conf_id = db.feed_conf.insert(name='manual_feed', x_cast='datetime', y_cast='integer')
+    feed_conf_id = db.feed_conf.insert(name='manual_feed', x_cast='datetime', y_cast='integer', feed_owner=feed_owner)
     feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='00')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='0')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='2')
