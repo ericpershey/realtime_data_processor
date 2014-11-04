@@ -94,15 +94,41 @@ if db(db.feed_conf).isempty():
     db.feed_data.truncate()
     db.feed_axis.truncate()
     db.feed_conf.truncate()
-    feed_owner = db(db.auth_user.email == 'eric.pershey@gmail.com').select().first()
 
-    feed_conf_id = db.feed_conf.insert(name='manual_feed', x_cast='datetime', y_cast='integer', feed_owner=feed_owner)
+    feed_owner = db(db.auth_user.email == 'eric.pershey@gmail.com').select().first()
+    feed_conf_id = db.feed_conf.insert(name='manual_feed_a', x_cast='datetime', y_cast='integer', feed_owner=feed_owner)
     feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='00')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='0')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='2')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-12', y='7')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-13', y='3')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='2')
+
+    feed_conf_id = db.feed_conf.insert(name='manual_feed_b', x_cast='datetime', y_cast='integer', feed_owner=feed_owner)
+    feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='00')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='40')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='72')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-12', y='31')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-13', y='73')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='72')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='82')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='32')
+
+    feed_conf_id = db.feed_conf.insert(name='sin_wave_over_time_in_seconds', x_cast='datetime', y_cast='float', feed_owner=feed_owner)
+    feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='00')
+
+    feed_owner = db(db.auth_user.email == 'ajpershey@gmail.com').select().first()
+    feed_conf_id = db.feed_conf.insert(name='manual_feed_aj', x_cast='datetime', y_cast='integer', feed_owner=feed_owner)
+    feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='00')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='1')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='3')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-12', y='2')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-13', y='4')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='3')
+
+#... per request, always false...
+class ENABLE_SIN_WAVE(object):
+    enable = False
 
 db.define_table(
     'sin_wave_over_time_in_seconds',
