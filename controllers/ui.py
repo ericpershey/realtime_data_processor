@@ -13,5 +13,5 @@ def feed_status():
         pass
         rows = db(db.feed_conf.feed_owner == auth.user).select()
     else:
-        rows = None
+        rows = db(db.feed_axis.feed_conf_id == feed_id).select()
     return dict(feed_id=feed_id, rows=rows)

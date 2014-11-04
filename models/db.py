@@ -115,7 +115,9 @@ if db(db.feed_conf).isempty():
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='32')
 
     feed_conf_id = db.feed_conf.insert(name='sin_wave_over_time_in_seconds', x_cast='datetime', y_cast='float', feed_owner=feed_owner)
-    feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='00')
+    feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='0')
+    feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='45')
+    feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='90')
 
     feed_owner = db(db.auth_user.email == 'ajpershey@gmail.com').select().first()
     feed_conf_id = db.feed_conf.insert(name='manual_feed_aj', x_cast='datetime', y_cast='integer', feed_owner=feed_owner)
@@ -125,6 +127,14 @@ if db(db.feed_conf).isempty():
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-12', y='2')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-13', y='4')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='3')
+    feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='01')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='9')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='8')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-12', y='7')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-13', y='6')
+    feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='5')
+
+
 
 #... per request, always false...
 class ENABLE_SIN_WAVE(object):
