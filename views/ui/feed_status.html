@@ -1,0 +1,10 @@
+{{extend 'layout.html'}}
+<h1>Feed Status</h1>
+{{if rows is not None:}}
+	{{=TABLE(
+		[
+			A(row.name, _href=URL('feed_status/%s' % (row.id))) for row in rows
+		]  
+	)}}
+{{pass}}
+{{#=BEAUTIFY(response._vars)}}
