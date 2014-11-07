@@ -4,11 +4,13 @@ def index():
     return dict(message="Tools")
 
 def toggle_sin_wave():
-    #NOTE THIS DOES NOT WORK!!!
-    if ENABLE_SIN_WAVE.enable == False:
-        ENABLE_SIN_WAVE.enable = True
+    state = toggle_sin_wave_state()
+    if state == True:
         message = "Enabled"
     else:
-        ENABLE_SIN_WAVE.enable = False
         message = "Disabled"
     return message
+
+def state_sin_wave():
+    state = get_sin_wave_state()
+    return state

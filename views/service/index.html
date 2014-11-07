@@ -1,2 +1,10 @@
-{{extend 'layout.html'}}
-<h1>Service</h1>
+{{
+#taken from http://web2py.com/books/default/chapter/29/10/services
+#modified to be application/json from text/json
+try:
+   from gluon.serializers import json
+   response.write(json(response._vars),escape=False)
+   response.headers['Content-Type']='application/json'
+except:
+   raise HTTP(405,'no json')
+}}

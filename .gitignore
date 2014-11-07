@@ -2,3 +2,5 @@ sessions*
 errors*
 databases*
 *.pyc
+*.bak
+.pythonhistory

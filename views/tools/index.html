@@ -1,4 +1,4 @@
 {{extend 'layout.html'}}
 <h1>Tools</h1>
 {{=A('Toggle Sin Wave Cron',_class="btn btn-primary", callback=URL('toggle_sin_wave'), target="sin_wave")}}
-<div id="sin_wave">{{='enabled' if ENABLE_SIN_WAVE.enable == True else 'disabled'}}</div>
+<div id="sin_wave">{{='enabled' if get_sin_wave_state == True else 'disabled'}}</div>

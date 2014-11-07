@@ -7,3 +7,5 @@
 [2014-11-03 21:48:51] EDIT realtime_data_processor/controllers/ui.py: 3
 [2014-11-03 21:49:01] EDIT realtime_data_processor/controllers/ui.py: 1
 [2014-11-04 15:25:47] EDIT realtime_data_processor/controllers/ui.py: 0
+[2014-11-07 11:04:58] CREATE scheduler.py: 0
+[2014-11-07 11:05:44] EDIT realtime_data_processor/models/scheduler.py: 90

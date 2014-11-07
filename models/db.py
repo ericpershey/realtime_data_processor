@@ -134,19 +134,5 @@ if db(db.feed_conf).isempty():
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-13', y='6')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='5')
 
-
-
-#... per request, always false...
-class ENABLE_SIN_WAVE(object):
-    enable = False
-
-db.define_table(
-    'sin_wave_over_time_in_seconds',
-    Field('current_value', 'float', requires=IS_NOT_EMPTY()),
-)
-
-if db(db.sin_wave_over_time_in_seconds).isempty():
-    db.sin_wave_over_time_in_seconds.insert(current_value=0.0)
-
 ## after defining tables, uncomment below to enable auditing
 # auth.enable_record_versioning(db)
