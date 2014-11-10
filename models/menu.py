@@ -38,8 +38,26 @@ def _():
     ctr = request.controller
     # useful links to internal and external resources
     response.menu += [
+        (SPAN('UI', _class='highlighted'), False, URL('realtime_data_processor', 'ui', 'index'), [
+            (T('feed_status'), False, URL('realtime_data_processor', 'ui', 'feed_status')),
+            (T('admin_dashboard'), False, URL('realtime_data_processor', 'ui', 'admin_dashboard')),
+            ]
+        )]
+    response.menu += [
+        (SPAN('Tools', _class='highlighted'), False, URL('realtime_data_processor', 'tools', 'index'), [
+            (T('toggle_sin_wave'), False, URL('realtime_data_processor', 'tools', 'toggle_sin_wave')),
+            (T('state_sin_wave'), False, URL('realtime_data_processor', 'tools', 'state_sin_wave')),
+            ]
+        )]
+
+    response.menu += [
+        (SPAN('Services', _class='highlighted'), False, URL('realtime_data_processor', 'service', 'index'), [
+            (T('feed_input'), False, URL('realtime_data_processor', 'service', 'feed_input')),
+            (T('feed_output'), False, URL('realtime_data_processor', 'service', 'feed_output')),
+            ]
+        )]
+    response.menu += [
         (SPAN('web2py', _class='highlighted'), False, 'http://web2py.com', [
-        (T('My Sites'), False, URL('admin', 'default', 'site')),
         (T('This App'), False, URL('admin', 'default', 'design/%s' % app), [
         (T('Controller'), False,
          URL(
@@ -64,75 +82,7 @@ def _():
          'admin', 'default', 'errors/' + app)),
         (T('About'), False, URL(
          'admin', 'default', 'about/' + app)),
-        ]),
-            ('web2py.com', False, 'http://www.web2py.com', [
-             (T('Download'), False,
-              'http://www.web2py.com/examples/default/download'),
-             (T('Support'), False,
-              'http://www.web2py.com/examples/default/support'),
-             (T('Demo'), False, 'http://web2py.com/demo_admin'),
-             (T('Quick Examples'), False,
-              'http://web2py.com/examples/default/examples'),
-             (T('FAQ'), False, 'http://web2py.com/AlterEgo'),
-             (T('Videos'), False,
-              'http://www.web2py.com/examples/default/videos/'),
-             (T('Free Applications'),
-              False, 'http://web2py.com/appliances'),
-             (T('Plugins'), False, 'http://web2py.com/plugins'),
-             (T('Layouts'), False, 'http://web2py.com/layouts'),
-             (T('Recipes'), False, 'http://web2pyslices.com/'),
-             (T('Semantic'), False, 'http://web2py.com/semantic'),
-             ]),
-            (T('Documentation'), False, 'http://www.web2py.com/book', [
-             (T('Preface'), False,
-              'http://www.web2py.com/book/default/chapter/00'),
-             (T('Introduction'), False,
-              'http://www.web2py.com/book/default/chapter/01'),
-             (T('Python'), False,
-              'http://www.web2py.com/book/default/chapter/02'),
-             (T('Overview'), False,
-              'http://www.web2py.com/book/default/chapter/03'),
-             (T('The Core'), False,
-              'http://www.web2py.com/book/default/chapter/04'),
-             (T('The Views'), False,
-              'http://www.web2py.com/book/default/chapter/05'),
-             (T('Database'), False,
-              'http://www.web2py.com/book/default/chapter/06'),
-             (T('Forms and Validators'), False,
-              'http://www.web2py.com/book/default/chapter/07'),
-             (T('Email and SMS'), False,
-              'http://www.web2py.com/book/default/chapter/08'),
-             (T('Access Control'), False,
-              'http://www.web2py.com/book/default/chapter/09'),
-             (T('Services'), False,
-              'http://www.web2py.com/book/default/chapter/10'),
-             (T('Ajax Recipes'), False,
-              'http://www.web2py.com/book/default/chapter/11'),
-             (T('Components and Plugins'), False,
-              'http://www.web2py.com/book/default/chapter/12'),
-             (T('Deployment Recipes'), False,
-              'http://www.web2py.com/book/default/chapter/13'),
-             (T('Other Recipes'), False,
-              'http://www.web2py.com/book/default/chapter/14'),
-             (T('Buy this book'), False,
-              'http://stores.lulu.com/web2py'),
-             ]),
-            (T('Community'), False, None, [
-             (T('Groups'), False,
-              'http://www.web2py.com/examples/default/usergroups'),
-                        (T('Twitter'), False, 'http://twitter.com/web2py'),
-                        (T('Live Chat'), False,
-                         'http://webchat.freenode.net/?channels=web2py'),
-                        ]),
-                (T('Plugins'), False, None, [
-                        ('plugin_wiki', False,
-                         'http://web2py.com/examples/default/download'),
-                        (T('Other Plugins'), False,
-                         'http://web2py.com/plugins'),
-                        (T('Layout Plugins'),
-                         False, 'http://web2py.com/layouts'),
-                        ])
-                ]
+        ]), ]
          )]
 if DEVELOPMENT_MENU: _()
 
