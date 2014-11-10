@@ -100,15 +100,19 @@ def sin_wave_over_time_in_seconds():
         try:
             value = _sin_wave_over_time_get_value()
             now = datetime.datetime.now()
-            response = requests.get(URL('service', 'feed_input.json', vars={'x':value, 'y':now}, scheme=True, host=True))
+            url = URL('service', 'feed_input.json', args=['sin_wave_over_time_in_seconds', '0'], vars={'x':now, 'y':value}, scheme=True, host=True)
+            print url
+            response = requests.get(url, auth=('ep@nothing.com', '1234'))
     
             fileobj = open('sin.log', 'a')
+            fileobj.write('url:%s\n' % url)
             fileobj.write("response code:%s\n" % response.status_code)
             fileobj.write("response json:%s\n" % response.json())
             fileobj.write("%s:%s:%s\n" % (the_id, now, value))
             fileobj.close()
         except Exception, err:
             fileobj = open('sin.log', 'a')
+            fileobj.write('url:%s\n' % url)
             fileobj.write("Error:%s\n" % (str(err)))
             fileobj.close()
 

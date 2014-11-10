@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 
 #########################################################################
 ## This scaffolding model makes your app work on Google App Engine too
@@ -68,10 +69,10 @@ auth.settings.reset_password_requires_verification = True
 
 #Table Definitions
 db.define_table("feed_conf",
-    Field('name', 'string'),
+    Field('name', 'string', unique=True),
     Field('x_cast', 'string'), #this will hold the name of the type the x should be cast to
     Field('y_cast', 'string'), #this will hold the name of the type the y should be cast to
-    Field("feed_owner", 'reference auth_user'),
+    Field("feed_owner_id", 'reference auth_user'),
     auth.signature,
     )
 
@@ -87,16 +88,99 @@ db.define_table('feed_data',
     Field('x', 'string'),
     Field('y', 'string'),
     Field('feed_axis_id', 'reference feed_axis'),
-    auth.signature,
+    #auth.signature,
     )
 
-if db(db.feed_conf).isempty():
+class ExceptionNotFound(Exception):
+    pass
+
+class ExceptionToMany(Exception):
+    pass
+
+class ExceptionBadCast(Exception):
+    pass
+
+class ExceptionBadValue(Exception):
+    pass
+
+def get_feed_axis(feed_name, axis_name):
+    '''This will return the axis for the selected feed_name and axis_name.
+    If it cannot find a feed or axis, it will raise a ExceptionNotFound
+    '''
+    feed_conf = db(db.feed_conf.name == feed_name).select().first() #feed_conf.name is unique
+    if feed_conf == None:
+        raise ExceptionNotFound("Feed %s not found" % (feed_name))
+    feed_axis_query = db((db.feed_axis.name == axis_name) & (db.feed_axis.feed_conf_id == feed_conf.id))
+    #eric look here:
+    #http://stackoverflow.com/questions/8054665/multi-column-unique-constraint-with-web2py
+    if feed_axis_query.count() > 1:
+        raise ExceptionToMany("Programmatic constrain for unique feed_conf and axis_name failed!  Duplicate detected for conf:%s, axis:%s" % (feed_name, axis_name))
+    else:
+        feed_axis = feed_axis_query.select().first()
+        if feed_axis == None:
+            raise ExceptionNotFound("Axis %s for feed %s not found" % (axis_name, feed_name))
+    return feed_conf, feed_axis
+
+def get_cast_func(cast_str):
+    if cast_str == 'datetime':
+        func = lambda d: datetime.datetime.strptime(d, '%Y-%m-%d %H:%M:%S.%f')
+    elif cast_str == 'float':
+        func = float
+    elif cast_str == 'int':
+        func = int
+    else:
+        raise ExceptionBadCast("%s is not a valid axis cast." % cast_str)
+    return func
+
+def parse_vars(feed_conf, request_vars):
+    x_func = get_cast_func(feed_conf.x_cast)
+    y_func = get_cast_func(feed_conf.y_cast)
+    x = request_vars.x
+    y = request_vars.y
+    if x is not None:
+        try:
+            x = x_func(x)
+        except ValueError, err:
+            raise ExceptionBadValue("Casting x value %s to %s is not valid.  Error:%s" % (x, feed_conf.x_cast, str(err)))
+    else:
+        raise ExceptionBadValue("Value x is invalid or missing:|%s|" % (x))
+    if y is not None:
+        try:
+            y = y_func(y)
+        except ValueError, err:
+            raise ExceptionBadValue("Casting y value %s to %s is not valid.  Error:%s" % (y, feed_conf.y_cast, str(err)))
+    else:
+        raise ExceptionBadValue("Value y is invalid or missing:|%s|" % (x))
+    return x, y
+
+
+recreate_database = False
+
+if db(db.feed_conf).isempty() or recreate_database:
+    #help on auth_user
+    #http://web2py.com/books/default/chapter/29/09/access-control
+    db.auth_user.truncate()
+    #password = db.auth_user.password.validate('1234')[0],
+    #password = CRYPT(digest_alg='sha512', salt=True)('1234')
+    password = str(CRYPT(key=auth.settings.hmac_key)('1234')[0])
+    db.auth_user.insert(password=password, email='ep@nothing.com',
+        first_name='e', last_name='p')
+    db.auth_user.insert(password=password, email='ap@nothing.com',
+        first_name='a', last_name='p')
+    db.commit()
+
+    #create some users and assign them to feeds.
+    feed_owner = db(db.auth_user.email == 'ep@nothing.com').select().first()
+    feed_owner = db(db.auth_user.email == 'ap@nothing.com').select().first()
+    db.commit()
+
+    #clear the current data
     db.feed_data.truncate()
     db.feed_axis.truncate()
     db.feed_conf.truncate()
 
-    feed_owner = db(db.auth_user.email == 'eric.pershey@gmail.com').select().first()
-    feed_conf_id = db.feed_conf.insert(name='manual_feed_a', x_cast='datetime', y_cast='integer', feed_owner=feed_owner)
+    #create the feed, axis and some data
+    feed_conf_id = db.feed_conf.insert(name='manual_feed_a', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner.id)
     feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='00')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='0')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='2')
@@ -104,7 +188,7 @@ if db(db.feed_conf).isempty():
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-13', y='3')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='2')
 
-    feed_conf_id = db.feed_conf.insert(name='manual_feed_b', x_cast='datetime', y_cast='integer', feed_owner=feed_owner)
+    feed_conf_id = db.feed_conf.insert(name='manual_feed_b', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner.id)
     feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='00')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='40')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='72')
@@ -114,13 +198,12 @@ if db(db.feed_conf).isempty():
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='82')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='32')
 
-    feed_conf_id = db.feed_conf.insert(name='sin_wave_over_time_in_seconds', x_cast='datetime', y_cast='float', feed_owner=feed_owner)
+    feed_conf_id = db.feed_conf.insert(name='sin_wave_over_time_in_seconds', x_cast='datetime', y_cast='float', feed_owner_id=feed_owner.id)
     feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='0')
     feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='45')
     feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='90')
 
-    feed_owner = db(db.auth_user.email == 'ajpershey@gmail.com').select().first()
-    feed_conf_id = db.feed_conf.insert(name='manual_feed_aj', x_cast='datetime', y_cast='integer', feed_owner=feed_owner)
+    feed_conf_id = db.feed_conf.insert(name='manual_feed_aj', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner.id)
     feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='00')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='1')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='3')

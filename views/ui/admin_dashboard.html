@@ -1,0 +1,11 @@
+{{extend 'layout.html'}}
+<h1>Admin Dashboard</h1>
+{{if rows is not None:}}
+	{{=TABLE(
+		TR(list(TH(tup) for tup in ('feed_conf.name', 'feed_axis.name', 'count'))),
+		[
+			TR(row.feed_conf.name, row.feed_axis.name, row.count) for row in rows
+		]  
+	)}}
+{{pass}}
+{{#=BEAUTIFY(response._vars)}}
