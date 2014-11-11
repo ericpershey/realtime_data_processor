@@ -13,7 +13,7 @@ def index():
     #response.generic_patterns = ['*.json']
     return dct
 
-@request.restful()
+#@request.restful()
 @auth.requires_login()
 def feed_input():
 #    feed_name = request.args(0)
@@ -36,11 +36,13 @@ def feed_input():
         del feed_axis
         del feed_conf
     except Exception, err:
-        print "Error:%s" % str(err)
-        return dict(error=str(err))
+        #print "Error:%s" % str(err)
+        #error_str = str(err)
+        error_str = "\n".join(extract_traceback())
+        return dict(error=error_str)
     return locals()
 
-@request.restful()
+#@request.restful()
 @auth.requires_login()
 def feed_output():
     feed_name = request.args(0)

@@ -1,5 +1,34 @@
 # -*- coding: utf-8 -*-
+import os
+import sys
 import datetime
+import traceback
+
+def extract_traceback(include_time=True):
+    """Extract a traceback, format it nicely and return it"""
+    if include_time:
+        currenttime = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+    else:
+        currenttime = ''
+    (exc_cls, exc, tracbk) = sys.exc_info()
+    exc_str = traceback.format_exception_only(exc_cls, exc)[0]
+    tracebacklst = []
+    tracebacklst.append(" ".join(("-" * 32, 'START TRACEBACK', "-" * 30)))
+    tracebacklst.append("    Exception  : %s" % (exc_str.strip()))
+    tracebacklst.append("    Time       : %s" % currenttime)
+    tracebacklst.append("-" * 80)
+    stack = traceback.format_tb(tracbk)
+    indent = "  "
+    for stackpiece in stack:
+        stackpiece = stackpiece.strip()
+        stackpiece_lst = stackpiece.split(os.linesep)
+        for stack_item in stackpiece_lst:
+            tracebacklst.append("%s%s|%s" % (indent, currenttime, stack_item))
+        #stackpiece = stackpiece.replace(os.linesep, "%s%s%s|" % \
+        #                                (os.linesep, indent, currenttime))
+        #tracebacklst.append("%s%s|%s" % (indent, currenttime, stackpiece))
+    tracebacklst.append(" ".join(("-" * 32, 'END TRACEBACK', "-" * 32)))
+    return tracebacklst
 
 #########################################################################
 ## This scaffolding model makes your app work on Google App Engine too
@@ -219,3 +248,5 @@ if db(db.feed_conf).isempty() or recreate_database:
 
 ## after defining tables, uncomment below to enable auditing
 # auth.enable_record_versioning(db)
+
+

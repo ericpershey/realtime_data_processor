@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import math
+import json
 import datetime
 import threading
 import requests
@@ -86,6 +87,10 @@ def sin_wave_over_time_in_seconds():
 
     manual call here
     http://127.0.0.1:8000/realtime_data_processor/data_feed_tasks/sin_wave_over_time_in_seconds
+    
+    The json will not work if response.text == u'Not authorized'
+    Some other problems were that @request.restful() was set on the services and didn't actaully take 
+    effect until the full server was restarted.
     '''
 
     value = 0.0 #default
@@ -100,20 +105,23 @@ def sin_wave_over_time_in_seconds():
         try:
             value = _sin_wave_over_time_get_value()
             now = datetime.datetime.now()
+            now = now.strftime("%Y-%m-%d %H:%M:%S.%f")
             url = URL('service', 'feed_input.json', args=['sin_wave_over_time_in_seconds', '0'], vars={'x':now, 'y':value}, scheme=True, host=True)
-            print url
             response = requests.get(url, auth=('ep@nothing.com', '1234'))
     
             fileobj = open('sin.log', 'a')
             fileobj.write('url:%s\n' % url)
             fileobj.write("response code:%s\n" % response.status_code)
-            fileobj.write("response json:%s\n" % response.json())
+            content = response.json()
+            fileobj.write("response json:%s\n" % (content))
             fileobj.write("%s:%s:%s\n" % (the_id, now, value))
             fileobj.close()
         except Exception, err:
             fileobj = open('sin.log', 'a')
             fileobj.write('url:%s\n' % url)
-            fileobj.write("Error:%s\n" % (str(err)))
+            error_str = str(err)
+            error_str = "\n".join(extract_traceback())
+            fileobj.write("Error:%s\n" % (error_str))
             fileobj.close()
 
     #lets return the value to show on the web page
