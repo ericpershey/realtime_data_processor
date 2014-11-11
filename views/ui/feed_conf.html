@@ -1,9 +1,9 @@
 {{extend 'layout.html'}}
-<h1>Feed Status</h1>
+<h3>Feed Conf List</h3>
 {{if rows is not None:}}
 	{{=TABLE(
 		[
-			A(row.name, _href=URL('feed_status/%s' % (row.id))) for row in rows
+			A(row.name, _href=URL('feed_axis/%s' % (row.id))) for row in rows
 		]  
 	)}}
 {{pass}}

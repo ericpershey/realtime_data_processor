@@ -5,9 +5,9 @@
 ## Customize your APP title, subtitle and menus here
 #########################################################################
 
-response.logo = A(B('web',SPAN(2),'py'),XML('&trade;&nbsp;'),
-                  _class="brand",_href="http://www.web2py.com/")
-response.title = request.application.replace('_',' ').title()
+response.logo = A(B('web', SPAN(2), 'py'), XML('&trade;&nbsp;'),
+                  _class="brand", _href="http://www.web2py.com/")
+response.title = request.application.replace('_', ' ').title()
 response.subtitle = ''
 
 ## read more at http://dev.w3.org/html5/markup/meta.name.html
@@ -39,7 +39,9 @@ def _():
     # useful links to internal and external resources
     response.menu += [
         (SPAN('UI', _class='highlighted'), False, URL('realtime_data_processor', 'ui', 'index'), [
-            (T('feed_status'), False, URL('realtime_data_processor', 'ui', 'feed_status')),
+            (T('feed_conf'), False, URL('realtime_data_processor', 'ui', 'feed_conf')),
+            (T('feed_axis'), False, URL('realtime_data_processor', 'ui', 'feed_axis')),
+            (T('feed_data'), False, URL('realtime_data_processor', 'ui', 'feed_data')),
             (T('admin_dashboard'), False, URL('realtime_data_processor', 'ui', 'admin_dashboard')),
             ]
         )]
@@ -86,4 +88,4 @@ def _():
          )]
 if DEVELOPMENT_MENU: _()
 
-if "auth" in locals(): auth.wikimenu() 
+if "auth" in locals(): auth.wikimenu()

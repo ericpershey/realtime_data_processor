@@ -6,18 +6,35 @@ def index():
 
 
 @auth.requires_login()
-def feed_status():
+def feed_conf():
     '''this will display the status of a feed or show the list of available 
     feeds'''
-    feed_id = request.args(0)
     auth_query = db.feed_conf.feed_owner_id == auth.user
-    if feed_id == None:
-        #display a list for the user to view
-        pass
-        rows = db(auth_query).select()
-    else:
-        rows = db((db.feed_axis.feed_conf_id == feed_id) & (auth_query)).select()
-    return dict(feed_id=feed_id, rows=rows)
+    rows = db(auth_query).select()
+    return dict(rows=rows)
+
+@auth.requires_login()
+def feed_axis():
+    auth_query = db.feed_conf.feed_owner_id == auth.user
+    count = db.feed_data.x.count().with_alias('count')
+    feed_conf_id = request.args(0)
+    feed_conf = db(db.feed_conf.id == feed_conf_id).select().first()
+    #this was done without count
+    #            this isolates it to the axis                auth            this isolates it to join  
+    #rows = db((db.feed_axis.feed_conf_id == feed_conf_id) & (auth_query) & (db.feed_axis.feed_conf_id == db.feed_conf.id)).select(db.feed_axis.ALL, db.feed_conf.ALL)
+    #with count
+    rows = db((db.feed_axis.feed_conf_id == feed_conf_id) & (auth_query) & (db.feed_axis.feed_conf_id == db.feed_conf.id)).select(db.feed_axis.ALL, db.feed_conf.ALL, count, left=db.feed_data.on(db.feed_axis.id == db.feed_data.feed_axis_id), groupby=(db.feed_conf.name, db.feed_axis.name))
+    return dict(feed_conf=feed_conf, rows=rows)
+
+@auth.requires_login()
+def feed_data():
+    #this auth query caused an inner joining of the feed_conf table which lead to lots more data than needed.
+    auth_query = db.feed_conf.feed_owner_id == auth.user
+    feed_axis_id = request.args(0)
+    feed_axis = db(db.feed_axis.id == feed_axis_id).select().first()
+    feed_conf = db((db.feed_conf.id == feed_axis.feed_conf_id) & (auth_query)).select().first()
+    rows = db((db.feed_data.feed_axis_id == feed_axis_id)).select(db.feed_data.x, db.feed_data.y, orderby=db.feed_data.x)
+    return dict(feed_conf=feed_conf, feed_axis=feed_axis, rows=rows)
 
 #Todo: admin only
 def admin_dashboard():
@@ -46,6 +63,14 @@ def admin_dashboard():
     #rows = db((db.feed_conf.id == db.feed_axis.feed_conf_id) & (db.feed_axis.id == db.feed_data.feed_axis_id)).select(db.feed_conf.name, db.feed_axis.name, count, groupby=(db.feed_conf.name, db.feed_axis.name))
     #moved the join of the axis and data into a left outer to pull in the zero count
     rows = db(db.feed_conf.id == db.feed_axis.feed_conf_id).select(db.feed_conf.name, db.feed_axis.name, count, left=db.feed_data.on(db.feed_axis.id == db.feed_data.feed_axis_id), groupby=(db.feed_conf.name, db.feed_axis.name))
-    return dict(rows=rows)
+    #trying to bring in the owner
+    rows = db((db.feed_conf.id == db.feed_axis.feed_conf_id) & (db.feed_conf.feed_owner_id == db.auth_user.id)).select(db.feed_conf.name, db.feed_axis.name, count, db.auth_user.email, left=db.feed_data.on(db.feed_axis.id == db.feed_data.feed_axis_id), groupby=(db.feed_conf.name, db.feed_axis.name))
+    lst = []
+    for row in rows:
+        a = dir(row)
+        #a = row.as_json()
+        a = row.as_dict()
+        lst.append(a)
+    return dict(lst=lst, rows=rows)
 
 

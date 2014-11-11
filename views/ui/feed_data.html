@@ -1,0 +1,15 @@
+{{extend 'layout.html'}}
+<h3>Feed Data for 
+	Feed Conf {{=A(feed_conf.name, _href=URL('feed_conf/%s' % (feed_conf.id)))}}
+	& 
+	Feed Axis {{=A(feed_axis.name, _href=URL('feed_axis/%s' % (feed_axis.id)))}}
+	</h3>
+{{if rows is not None:}}
+	{{=TABLE(
+		TR(list(TH(tup) for tup in ('x', 'y'))),
+		[
+			TR(row.x, row.y) for row in rows
+		]  
+	)}}
+{{pass}}
+{{#=BEAUTIFY(response._vars)}}

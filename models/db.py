@@ -199,8 +199,8 @@ if db(db.feed_conf).isempty() or recreate_database:
     db.commit()
 
     #create some users and assign them to feeds.
-    feed_owner = db(db.auth_user.email == 'ep@nothing.com').select().first()
-    feed_owner = db(db.auth_user.email == 'ap@nothing.com').select().first()
+    feed_owner_a = db(db.auth_user.email == 'ep@nothing.com').select().first()
+    feed_owner_b = db(db.auth_user.email == 'ap@nothing.com').select().first()
     db.commit()
 
     #clear the current data
@@ -209,7 +209,7 @@ if db(db.feed_conf).isempty() or recreate_database:
     db.feed_conf.truncate()
 
     #create the feed, axis and some data
-    feed_conf_id = db.feed_conf.insert(name='manual_feed_a', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner.id)
+    feed_conf_id = db.feed_conf.insert(name='manual_feed_a', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner_a.id)
     feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='00')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='0')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='2')
@@ -217,7 +217,7 @@ if db(db.feed_conf).isempty() or recreate_database:
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-13', y='3')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='2')
 
-    feed_conf_id = db.feed_conf.insert(name='manual_feed_b', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner.id)
+    feed_conf_id = db.feed_conf.insert(name='manual_feed_b', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner_a.id)
     feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='00')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='40')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='72')
@@ -227,12 +227,12 @@ if db(db.feed_conf).isempty() or recreate_database:
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='82')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='32')
 
-    feed_conf_id = db.feed_conf.insert(name='sin_wave_over_time_in_seconds', x_cast='datetime', y_cast='float', feed_owner_id=feed_owner.id)
+    feed_conf_id = db.feed_conf.insert(name='sin_wave_over_time_in_seconds', x_cast='datetime', y_cast='float', feed_owner_id=feed_owner_a.id)
     feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='0')
     feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='45')
     feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='90')
 
-    feed_conf_id = db.feed_conf.insert(name='manual_feed_aj', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner.id)
+    feed_conf_id = db.feed_conf.insert(name='manual_feed_aj', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner_b.id)
     feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='00')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='1')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='3')
