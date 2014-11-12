@@ -106,9 +106,9 @@ def sin_wave_over_time_in_seconds():
             value = _sin_wave_over_time_get_value()
             now = datetime.datetime.now()
             now = now.strftime("%Y-%m-%d %H:%M:%S.%f")
-            url = URL('service', 'feed_input.json', args=['sin_wave_over_time_in_seconds', '0'], vars={'x':now, 'y':value}, scheme=True, host=True)
+            url = URL('service', 'feed_input.json', args=['sin_wave_over_time_in_seconds', 'axis_at_0_degrees'], vars={'x':now, 'y':value}, scheme=True, host=True)
             response = requests.get(url, auth=('ep@nothing.com', '1234'))
-    
+
             fileobj = open('sin.log', 'a')
             fileobj.write('url:%s\n' % url)
             fileobj.write("response code:%s\n" % response.status_code)

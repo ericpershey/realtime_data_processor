@@ -97,7 +97,7 @@ auth.settings.reset_password_requires_verification = True
 #use_janrain(auth, filename='private/janrain.key')
 
 #Table Definitions
-db.define_table("feed_conf",
+db.define_table("feed",
     Field('name', 'string', unique=True),
     Field('x_cast', 'string'), #this will hold the name of the type the x should be cast to
     Field('y_cast', 'string'), #this will hold the name of the type the y should be cast to
@@ -107,7 +107,7 @@ db.define_table("feed_conf",
 
 db.define_table('feed_axis',
     Field('name', 'string'),
-    Field("feed_conf_id", 'reference feed_conf'),
+    Field("feed_id", 'reference feed'),
     )
 
 db.define_table('feed_data',
@@ -136,19 +136,19 @@ def get_feed_axis(feed_name, axis_name):
     '''This will return the axis for the selected feed_name and axis_name.
     If it cannot find a feed or axis, it will raise a ExceptionNotFound
     '''
-    feed_conf = db(db.feed_conf.name == feed_name).select().first() #feed_conf.name is unique
-    if feed_conf == None:
+    feed = db(db.feed.name == feed_name).select().first() #feed.name is unique
+    if feed == None:
         raise ExceptionNotFound("Feed %s not found" % (feed_name))
-    feed_axis_query = db((db.feed_axis.name == axis_name) & (db.feed_axis.feed_conf_id == feed_conf.id))
+    feed_axis_query = db((db.feed_axis.name == axis_name) & (db.feed_axis.feed_id == feed.id))
     #eric look here:
     #http://stackoverflow.com/questions/8054665/multi-column-unique-constraint-with-web2py
     if feed_axis_query.count() > 1:
-        raise ExceptionToMany("Programmatic constrain for unique feed_conf and axis_name failed!  Duplicate detected for conf:%s, axis:%s" % (feed_name, axis_name))
+        raise ExceptionToMany("Programmatic constrain for unique feed and axis_name failed!  Duplicate detected for conf:%s, axis:%s" % (feed_name, axis_name))
     else:
         feed_axis = feed_axis_query.select().first()
         if feed_axis == None:
             raise ExceptionNotFound("Axis %s for feed %s not found" % (axis_name, feed_name))
-    return feed_conf, feed_axis
+    return feed, feed_axis
 
 def get_cast_func(cast_str):
     if cast_str == 'datetime':
@@ -161,23 +161,23 @@ def get_cast_func(cast_str):
         raise ExceptionBadCast("%s is not a valid axis cast." % cast_str)
     return func
 
-def parse_vars(feed_conf, request_vars):
-    x_func = get_cast_func(feed_conf.x_cast)
-    y_func = get_cast_func(feed_conf.y_cast)
+def parse_vars(feed, request_vars):
+    x_func = get_cast_func(feed.x_cast)
+    y_func = get_cast_func(feed.y_cast)
     x = request_vars.x
     y = request_vars.y
     if x is not None:
         try:
             x = x_func(x)
         except ValueError, err:
-            raise ExceptionBadValue("Casting x value %s to %s is not valid.  Error:%s" % (x, feed_conf.x_cast, str(err)))
+            raise ExceptionBadValue("Casting x value %s to %s is not valid.  Error:%s" % (x, feed.x_cast, str(err)))
     else:
         raise ExceptionBadValue("Value x is invalid or missing:|%s|" % (x))
     if y is not None:
         try:
             y = y_func(y)
         except ValueError, err:
-            raise ExceptionBadValue("Casting y value %s to %s is not valid.  Error:%s" % (y, feed_conf.y_cast, str(err)))
+            raise ExceptionBadValue("Casting y value %s to %s is not valid.  Error:%s" % (y, feed.y_cast, str(err)))
     else:
         raise ExceptionBadValue("Value y is invalid or missing:|%s|" % (x))
     return x, y
@@ -185,7 +185,7 @@ def parse_vars(feed_conf, request_vars):
 
 recreate_database = False
 
-if db(db.feed_conf).isempty() or recreate_database:
+if db(db.feed).isempty() or recreate_database:
     #help on auth_user
     #http://web2py.com/books/default/chapter/29/09/access-control
     db.auth_user.truncate()
@@ -206,19 +206,19 @@ if db(db.feed_conf).isempty() or recreate_database:
     #clear the current data
     db.feed_data.truncate()
     db.feed_axis.truncate()
-    db.feed_conf.truncate()
+    db.feed.truncate()
 
     #create the feed, axis and some data
-    feed_conf_id = db.feed_conf.insert(name='manual_feed_a', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner_a.id)
-    feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='00')
+    feed_id = db.feed.insert(name='manual_feed_a', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner_a.id)
+    feed_axis_id = db.feed_axis.insert(feed_id=feed_id, name='axis_a00')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='0')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='2')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-12', y='7')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-13', y='3')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='2')
 
-    feed_conf_id = db.feed_conf.insert(name='manual_feed_b', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner_a.id)
-    feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='00')
+    feed_id = db.feed.insert(name='manual_feed_b', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner_a.id)
+    feed_axis_id = db.feed_axis.insert(feed_id=feed_id, name='axis_b00')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='40')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='72')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-12', y='31')
@@ -227,19 +227,19 @@ if db(db.feed_conf).isempty() or recreate_database:
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='82')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='32')
 
-    feed_conf_id = db.feed_conf.insert(name='sin_wave_over_time_in_seconds', x_cast='datetime', y_cast='float', feed_owner_id=feed_owner_a.id)
-    feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='0')
-    feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='45')
-    feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='90')
+    feed_id = db.feed.insert(name='sin_wave_over_time_in_seconds', x_cast='datetime', y_cast='float', feed_owner_id=feed_owner_a.id)
+    feed_axis_id = db.feed_axis.insert(feed_id=feed_id, name='axis_at_0_degrees')
+    feed_axis_id = db.feed_axis.insert(feed_id=feed_id, name='axis_at_45_degrees')
+    feed_axis_id = db.feed_axis.insert(feed_id=feed_id, name='axis_at_90_degrees')
 
-    feed_conf_id = db.feed_conf.insert(name='manual_feed_aj', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner_b.id)
-    feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='00')
+    feed_id = db.feed.insert(name='manual_feed_aj', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner_b.id)
+    feed_axis_id = db.feed_axis.insert(feed_id=feed_id, name='axis_aj_00')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='1')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='3')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-12', y='2')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-13', y='4')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='3')
-    feed_axis_id = db.feed_axis.insert(feed_conf_id=feed_conf_id, name='01')
+    feed_axis_id = db.feed_axis.insert(feed_id=feed_id, name='axis_aj_01')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='9')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='8')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-12', y='7')

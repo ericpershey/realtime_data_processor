@@ -2,9 +2,9 @@
 <h1>Admin Dashboard</h1>
 {{if rows is not None:}}
 	{{=TABLE(
-		TR(list(TH(tup) for tup in ('feed_conf.name', 'feed_axis.name', 'count', 'auth_user.email'))),
+		TR(list(TH(tup) for tup in ('feed.name', 'feed_axis.name', 'count', 'auth_user.email'))),
 		[
-			TR(row.feed_conf.name, row.feed_axis.name, row.count, row.auth_user.email) for row in rows
+			TR(row.feed.name, row.feed_axis.name, row.count, row.auth_user.email) for row in rows
 		]  
 	)}}
 {{pass}}

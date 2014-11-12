@@ -1,9 +1,9 @@
 {{extend 'layout.html'}}
-<h3>Feed Data for 
-	Feed Conf {{=A(feed_conf.name, _href=URL('feed_conf/%s' % (feed_conf.id)))}}
-	& 
-	Feed Axis {{=A(feed_axis.name, _href=URL('feed_axis/%s' % (feed_axis.id)))}}
-	</h3>
+<script src="{{=URL('static','js/prettyprint.js')}}"></script>
+<h3>{{= A("Feed List", _href=URL('feed_list'))}}</h3>
+<h3>{{= A("Feed %s" % feed.name, _href=URL('feed_axis_list/%s' % (feed_axis.id))) if feed_axis != None else None }}</h3>
+<h3>Feed Axis:{{=feed_axis.name if feed_axis != None else None}}</h3>
+<h3>Feed Data</h3>
 {{if rows is not None:}}
 	{{=TABLE(
 		TR(list(TH(tup) for tup in ('x', 'y'))),

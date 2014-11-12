@@ -39,16 +39,14 @@ def _():
     # useful links to internal and external resources
     response.menu += [
         (SPAN('UI', _class='highlighted'), False, URL('realtime_data_processor', 'ui', 'index'), [
-            (T('feed_conf'), False, URL('realtime_data_processor', 'ui', 'feed_conf')),
-            (T('feed_axis'), False, URL('realtime_data_processor', 'ui', 'feed_axis')),
-            (T('feed_data'), False, URL('realtime_data_processor', 'ui', 'feed_data')),
+            (T('feed_list'), False, URL('realtime_data_processor', 'ui', 'feed_list')),
+            #(T('feed_axis_list'), False, URL('realtime_data_processor', 'ui', 'feed_axis_list')),
+            #(T('feed_data'), False, URL('realtime_data_processor', 'ui', 'feed_data')),
             (T('admin_dashboard'), False, URL('realtime_data_processor', 'ui', 'admin_dashboard')),
             ]
         )]
     response.menu += [
         (SPAN('Tools', _class='highlighted'), False, URL('realtime_data_processor', 'tools', 'index'), [
-            (T('toggle_sin_wave'), False, URL('realtime_data_processor', 'tools', 'toggle_sin_wave')),
-            (T('state_sin_wave'), False, URL('realtime_data_processor', 'tools', 'state_sin_wave')),
             ]
         )]
 

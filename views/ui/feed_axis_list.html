@@ -1,0 +1,11 @@
+{{extend 'layout.html'}}
+<h3>Feed Conf {{= A(feed.name, _href=URL('feed_list/%s' % (feed.id))) if feed != None else None }}</h3>
+{{if rows is not None:}}
+	{{=TABLE(
+		TR(list(TH(tup) for tup in ('feed.name', 'feed_axis.name', 'feed_data.count'))),
+		[
+			TR(row.feed.name, A(row.feed_axis.name, _href=URL('feed_data/%s' % (row.feed_axis.id))), row.count) for row in rows
+		]  
+	)}}
+{{pass}}
+{{#=BEAUTIFY(response._vars)}}
