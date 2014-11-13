@@ -117,6 +117,7 @@ db.define_table('feed_data',
     Field('x', 'string'),
     Field('y', 'string'),
     Field('feed_axis_id', 'reference feed_axis'),
+    Field('entry_time', 'datetime', default=datetime.datetime.now())
     #auth.signature,
     )
 

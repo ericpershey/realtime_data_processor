@@ -4,6 +4,10 @@
 <h3>{{= A("Feed %s" % feed.name, _href=URL('feed_axis_list/%s' % (feed_axis.id))) if feed_axis != None else None }}</h3>
 <h3>Feed Axis:{{=feed_axis.name if feed_axis != None else None}}</h3>
 <h3>Feed Data</h3>
+<!-- currently will only just get the last row, need to add usage of https://github.com/padolsey/prettyprint.js -->
+{{=A('get data',_class="btn btn-primary", callback=URL('service', 'feed_live.json', args=[feed.name, feed_axis.name]), target="new_data")}}
+<div id="new_data">new data goes here</div>
+
 {{if rows is not None:}}
 	{{=TABLE(
 		TR(list(TH(tup) for tup in ('x', 'y'))),
@@ -12,4 +16,6 @@
 		]  
 	)}}
 {{pass}}
+
+
 {{#=BEAUTIFY(response._vars)}}
