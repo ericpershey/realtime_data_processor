@@ -77,3 +77,4 @@ def feed_live():
     row = db(db.feed_data.feed_axis_id == feed_axis.id).select(orderby=db.feed_data.entry_time).last()
 
     return dict(row=row)
+

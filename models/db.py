@@ -98,25 +98,30 @@ auth.settings.reset_password_requires_verification = True
 
 #Table Definitions
 db.define_table("feed",
-    Field('name', 'string', unique=True),
-    Field('x_cast', 'string'), #this will hold the name of the type the x should be cast to
-    Field('y_cast', 'string'), #this will hold the name of the type the y should be cast to
+    Field('name', 'string', unique=True, requires=IS_NOT_EMPTY()),
+    Field('x_cast', 'string', requires=IS_NOT_EMPTY()), #this will hold the name of the type the x should be cast to
+    Field('y_cast', 'string', requires=IS_NOT_EMPTY()), #this will hold the name of the type the y should be cast to
     Field("feed_owner_id", 'reference auth_user'),
     auth.signature,
     )
 
+def get_axis_form(feed_id):
+    db.feed_axis.feed_id.default = feed_id
+    form = SQLFORM(db.feed_axis, fields=['name', 'feed_id'], _id='feed_axis_list_form')
+    return form
+
 db.define_table('feed_axis',
-    Field('name', 'string'),
-    Field("feed_id", 'reference feed'),
+    Field('name', 'string', requires=IS_NOT_EMPTY()),
+    Field("feed_id", 'reference feed', requires=IS_NOT_EMPTY()),
     )
 
 db.define_table('feed_data',
     #this really isn't the best way, these will have to be cast later based
     #on the config.  This might be fast enough and allow for much easier
     #storing of the data
-    Field('x', 'string'),
-    Field('y', 'string'),
-    Field('feed_axis_id', 'reference feed_axis'),
+    Field('x', 'string', requires=IS_NOT_EMPTY()),
+    Field('y', 'string', requires=IS_NOT_EMPTY()),
+    Field('feed_axis_id', 'reference feed_axis', requires=IS_NOT_EMPTY()),
     Field('entry_time', 'datetime', default=datetime.datetime.now())
     #auth.signature,
     )

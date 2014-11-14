@@ -1,11 +1,61 @@
 {{extend 'layout.html'}}
 <h3>Feed Conf {{= A(feed.name, _href=URL('feed_list/%s' % (feed.id))) if feed != None else None }}</h3>
 {{if rows is not None:}}
-	{{=TABLE(
-		TR(list(TH(tup) for tup in ('feed.name', 'feed_axis.name', 'feed_data.count'))),
-		[
-			TR(row.feed.name, A(row.feed_axis.name, _href=URL('feed_data/%s' % (row.feed_axis.id))), row.count) for row in rows
-		]  
+	<form action="#" enctype="multipart/form-data" id="the_form" method="post">
+	{{=TBODY(
+			TABLE(
+			TR(list(TH(tup) for tup in ('feed.name', 'feed_axis.name', 'feed_data.count', ''))),
+			[
+				TR(
+					row.feed.name, 
+					A(row.feed_axis.name, _href=URL('feed_data/%s' % (row.feed_axis.id))), 
+					row.count,
+					INPUT(_type='button', _class="delete_axis", _value="Delete", 
+						_onclick = """
+							jQuery.post('%(url)s',
+									'' ,
+									jQuery('#row_axis_%(feed_axis_id)s').remove()
+									);
+							""" % {
+								'feed_axis_id':row.feed_axis.id, 
+								'url':URL("ui", "ajax_axis_delete.load", args=[row.feed_axis.id])
+								}
+					), 
+					_id="row_axis_%s" % row.feed_axis.id) for row in rows
+			],
+			TR(_id='feed_axis_list_form_result'),
+			TR(form.custom.widget.feed_id, TD(form.custom.widget.name), TD("N/A"), TD(form.custom.submit))
+		, _id='feed_axis_list')  
 	)}}
+    <input name="_formname" type="hidden" value="feed_axis/create" />
+	</form>
+	
 {{pass}}
-{{#=BEAUTIFY(response._vars)}}
+
+
+{{#=LOAD('ui', 'ajax_axis.load', args=[feed.id] ,ajax=True, target='feed_axis_list_form_result')}}
+
+<script>
+/*
+ * The job of this is to override the submit on the form and do an ajax call and fill the data in.
+ */
+	/*jQuery('#the_form').submit(function() { 
+	  ajax('{{=URL("ui", "ajax_axis.load", args=[feed.id])}}', 
+	       ['name', 'feed_id'], 'feed_axis_list_form_result'); 
+	  return false; 
+	});*/ 
+	/*
+	 * This was a pain.  I tried to use the builtin web2py stuff but could not get it to send
+	 * the custom form with _formname
+	 */
+
+	jQuery('#the_form').submit(function(event) {
+		console.log(jQuery('#the_form').serialize());
+		jQuery.post('{{=URL("ui", "ajax_axis.load", args=[feed.id])}}',
+			jQuery('#the_form').serialize(),
+			function(data){
+				jQuery('#feed_axis_list_form_result').replaceWith(data);
+			});
+	  return false; 
+	}); 
+</script>

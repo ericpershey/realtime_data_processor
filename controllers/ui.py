@@ -14,17 +14,54 @@ def feed_list():
     return dict(rows=rows)
 
 @auth.requires_login()
+def ajax_axis():
+    '''This will handle the adding of axes
+    
+    TODO: don't send the full TR if it's an update and don't allow duplicates.
+    '''
+    try:
+        feed_id = int(request.args(0))
+        feed = db(db.feed.id == feed_id).select().first()
+        form = get_axis_form(feed_id)
+        if form.accepts(request.vars):
+            feed_axis = db(db.feed_axis.name == request.vars['name']).select().first()
+            response.flash = "Accepted"
+            row = TR(TD(feed.name), TD(feed_axis.name), TD(-1)) + TR(_id='feed_axis_list_form_result')
+        elif form.errors:
+            response.flash = "Errors:%s" % BEAUTIFY(form.errors)
+            row = TR()
+        else:
+            response.flash = "Failed"
+            row = TR()
+
+        print "HELP", str(request.vars)
+    except Exception, err:
+        print '\n'.join(extract_traceback())
+    return dict(row=row)
+
+@auth.requires_login()
+def ajax_axis_delete():
+    print "Deleting %s" % request.args(0)
+    db(db.feed_axis.id == request.args(0)).delete()
+    db.commit()
+    return {}
+
+
+@auth.requires_login()
 def feed_axis_list():
     auth_query = db.feed.feed_owner_id == auth.user
     count = db.feed_data.x.count().with_alias('count')
     feed_id = request.args(0)
     feed = db(db.feed.id == feed_id).select().first()
     #this was done without count
-    #            this isolates it to the axis                auth            this isolates it to join  
+    #            this isolates it to the axis                auth            this isolates it to join
     #rows = db((db.feed_axis.feed_id == feed_id) & (auth_query) & (db.feed_axis.feed_id == db.feed.id)).select(db.feed_axis.ALL, db.feed.ALL)
     #with count
     rows = db((db.feed_axis.feed_id == feed_id) & (auth_query) & (db.feed_axis.feed_id == db.feed.id)).select(db.feed_axis.ALL, db.feed.ALL, count, left=db.feed_data.on(db.feed_axis.id == db.feed_data.feed_axis_id), groupby=(db.feed.name, db.feed_axis.name))
-    return dict(feed=feed, rows=rows)
+    print "getting form with feed_id:%s" % feed_id
+    form = get_axis_form(feed_id)
+    print form.hidden_fields()
+    return dict(feed=feed, rows=rows, form=form)
 
 @auth.requires_login()
 def feed_data():
