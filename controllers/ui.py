@@ -14,25 +14,32 @@ def feed_list():
     return dict(rows=rows)
 
 @auth.requires_login()
-def ajax_axis():
+def ajax_axis_add():
     '''This will handle the adding of axes
-    
-    TODO: don't send the full TR if it's an update and don't allow duplicates.
     '''
     try:
         feed_id = int(request.args(0))
         feed = db(db.feed.id == feed_id).select().first()
-        form = get_axis_form(feed_id)
-        if form.accepts(request.vars):
-            feed_axis = db(db.feed_axis.name == request.vars['name']).select().first()
-            response.flash = "Accepted"
-            row = TR(TD(feed.name), TD(feed_axis.name), TD(-1)) + TR(_id='feed_axis_list_form_result')
-        elif form.errors:
-            response.flash = "Errors:%s" % BEAUTIFY(form.errors)
-            row = TR()
+        #This is kind of inefficient but checks to make sure there isn't one already in the database.
+        feed_axis = db((db.feed_axis.name == request.vars['name']) & (db.feed_axis.feed_id == feed.id)).select().first()
+        if feed_axis is None:
+            form = get_axis_form(feed_id)
+            if form.accepts(request.vars):
+                feed_axis = db(db.feed_axis.name == request.vars['name']).select().first()
+                response.flash = "Accepted"
+                feed_url = A(feed_axis.name, _href=URL('feed_data/%s' % (feed_axis.id))),
+                row = TR(TD(feed.name), TD(feed_url), TD(0)) #hardcoding it to zero as it will only add one if it doesn't exist
+            elif form.errors:
+                response.flash = "Errors:%s" % BEAUTIFY(form.errors)
+                row = TR()
+            else:
+                response.flash = "Failed"
+                row = TR()
         else:
-            response.flash = "Failed"
+            response.flash = "Feed %s + Axis %s is already in the database" % (feed.name, feed_axis.name)
             row = TR()
+
+        row = row + TR(_id='feed_axis_list_form_result')
 
         print "HELP", str(request.vars)
     except Exception, err:

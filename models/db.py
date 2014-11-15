@@ -105,11 +105,6 @@ db.define_table("feed",
     auth.signature,
     )
 
-def get_axis_form(feed_id):
-    db.feed_axis.feed_id.default = feed_id
-    form = SQLFORM(db.feed_axis, fields=['name', 'feed_id'], _id='feed_axis_list_form')
-    return form
-
 db.define_table('feed_axis',
     Field('name', 'string', requires=IS_NOT_EMPTY()),
     Field("feed_id", 'reference feed', requires=IS_NOT_EMPTY()),
@@ -138,6 +133,12 @@ class ExceptionBadCast(Exception):
 class ExceptionBadValue(Exception):
     pass
 
+def get_axis_form(feed_id):
+    '''this returns the form axis'''
+    db.feed_axis.feed_id.default = feed_id
+    form = SQLFORM(db.feed_axis, fields=['name', 'feed_id'], _id='feed_axis_list_form')
+    return form
+
 def get_feed_axis(feed_name, axis_name):
     '''This will return the axis for the selected feed_name and axis_name.
     If it cannot find a feed or axis, it will raise a ExceptionNotFound
@@ -149,6 +150,7 @@ def get_feed_axis(feed_name, axis_name):
     #eric look here:
     #http://stackoverflow.com/questions/8054665/multi-column-unique-constraint-with-web2py
     if feed_axis_query.count() > 1:
+        #now prevented in the ajax form to as axes
         raise ExceptionToMany("Programmatic constrain for unique feed and axis_name failed!  Duplicate detected for conf:%s, axis:%s" % (feed_name, axis_name))
     else:
         feed_axis = feed_axis_query.select().first()
@@ -157,6 +159,7 @@ def get_feed_axis(feed_name, axis_name):
     return feed, feed_axis
 
 def get_cast_func(cast_str):
+    '''this gets the real casting function'''
     if cast_str == 'datetime':
         func = lambda d: datetime.datetime.strptime(d, '%Y-%m-%d %H:%M:%S.%f')
     elif cast_str == 'float':
@@ -168,6 +171,8 @@ def get_cast_func(cast_str):
     return func
 
 def parse_vars(feed, request_vars):
+    '''given data from a request, parse the x and y and cast them to the required type
+    and throw errors if they are not correct'''
     x_func = get_cast_func(feed.x_cast)
     y_func = get_cast_func(feed.y_cast)
     x = request_vars.x
@@ -188,7 +193,7 @@ def parse_vars(feed, request_vars):
         raise ExceptionBadValue("Value y is invalid or missing:|%s|" % (x))
     return x, y
 
-
+#this is how I load the database to test it with two users.
 recreate_database = False
 
 if db(db.feed).isempty() or recreate_database:

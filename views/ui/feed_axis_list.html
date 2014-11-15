@@ -2,6 +2,8 @@
 <h3>Feed Conf {{= A(feed.name, _href=URL('feed_list/%s' % (feed.id))) if feed != None else None }}</h3>
 {{if rows is not None:}}
 	<form action="#" enctype="multipart/form-data" id="the_form" method="post">
+	<!-- This creates the header, and each row of the table.
+		Each row contains the fields and a button at the end.-->
 	{{=TBODY(
 			TABLE(
 			TR(list(TH(tup) for tup in ('feed.name', 'feed_axis.name', 'feed_data.count', ''))),
@@ -12,14 +14,23 @@
 					row.count,
 					INPUT(_type='button', _class="delete_axis", _value="Delete", 
 						_onclick = """
-							jQuery.post('%(url)s',
-									'' ,
-									jQuery('#row_axis_%(feed_axis_id)s').remove()
-									);
+							//lets make sure they want to do this
+							result = confirm("Do you want to delete feed axis with id %(feed_axis_id)s");
+							if (result == true) {
+								//alert('deleting');
+								jQuery.post('%(url)s',
+										'' ,
+										jQuery('#row_axis_%(feed_axis_id)s').remove()
+										);
+								
+							} else {
+								//alert('canceling');
+							}
 							""" % {
-								'feed_axis_id':row.feed_axis.id, 
-								'url':URL("ui", "ajax_axis_delete.load", args=[row.feed_axis.id])
+									'feed_axis_id':row.feed_axis.id, 
+									'url':URL("ui", "ajax_axis_delete.load", args=[row.feed_axis.id])
 								}
+						
 					), 
 					_id="row_axis_%s" % row.feed_axis.id) for row in rows
 			],
@@ -33,14 +44,14 @@
 {{pass}}
 
 
-{{#=LOAD('ui', 'ajax_axis.load', args=[feed.id] ,ajax=True, target='feed_axis_list_form_result')}}
+{{#=LOAD('ui', 'ajax_axis_add.load', args=[feed.id] ,ajax=True, target='feed_axis_list_form_result')}}
 
 <script>
 /*
  * The job of this is to override the submit on the form and do an ajax call and fill the data in.
  */
 	/*jQuery('#the_form').submit(function() { 
-	  ajax('{{=URL("ui", "ajax_axis.load", args=[feed.id])}}', 
+	  ajax('{{=URL("ui", "ajax_axis_add.load", args=[feed.id])}}', 
 	       ['name', 'feed_id'], 'feed_axis_list_form_result'); 
 	  return false; 
 	});*/ 
@@ -51,7 +62,7 @@
 
 	jQuery('#the_form').submit(function(event) {
 		console.log(jQuery('#the_form').serialize());
-		jQuery.post('{{=URL("ui", "ajax_axis.load", args=[feed.id])}}',
+		jQuery.post('{{=URL("ui", "ajax_axis_add.load", args=[feed.id])}}',
 			jQuery('#the_form').serialize(),
 			function(data){
 				jQuery('#feed_axis_list_form_result').replaceWith(data);
