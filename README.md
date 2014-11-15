@@ -27,11 +27,11 @@ service.py
 	                                                   ctrler   function          feed                         axis               x                                y
 		http://127.0.0.1:8000/realtime_data_processor/service/feed_input.json/sin_wave_over_time_in_seconds/axis_at_0_degrees?x=2014-11-12+22%3A39%3A47.122000&y=0.93203
 ```
-tools.py
-* This is how you can enable or disable the sin wave task pushing of data
-ui.py
+default.py
 * This has controllers and views for the feed list, feed axes, and feed data
 * It also has an admin interface called admin_dashboard that I use to make sure my numbers are coming out right.
+tools.py
+* This is how you can enable or disable the sin wave task pushing of data
 db.py
 * fully repopulates the database if there is no data or the flag recreate_database is set to True
 
@@ -42,8 +42,8 @@ TODO
 * Adding the realtime graphs that move when data comes in
 * websockets, may have to defer to after the project.
 * Full authentication and authorization needs to be added with groups and permissions.
-** ep going to http://127.0.0.1:8000/realtime_data_processor/ui/feed_data/3 works as it should
-** ap going to http://127.0.0.1:8000/realtime_data_processor/ui/feed_data/3 should throw an access denied
+** ep going to http://127.0.0.1:8000/realtime_data_processor/default/feed_data/3 works as it should
+** ap going to http://127.0.0.1:8000/realtime_data_processor/default/feed_data/3 should throw an access denied
 * Cleaning of the database needs to be added(removing old data).
 * TESTING, unit and functional!  
 * Cleanup and prep for deployment

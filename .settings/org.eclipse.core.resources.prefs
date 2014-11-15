@@ -2,5 +2,5 @@ eclipse.preferences.version=1
 encoding//controllers/default.py=utf-8
 encoding//controllers/service.py=utf-8
 encoding//controllers/tools.py=utf-8
-encoding//controllers/ui.py=utf-8
 encoding//models/db.py=utf-8
+encoding//models/menu.py=utf-8

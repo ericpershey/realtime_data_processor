@@ -23,7 +23,7 @@ response.google_analytics_id = None
 #########################################################################
 
 response.menu = [
-    (T('Home'), False, URL('default', 'index'), [])
+    #(T('Home'), False, URL('default', 'index'), [])
 ]
 
 DEVELOPMENT_MENU = True
@@ -38,11 +38,11 @@ def _():
     ctr = request.controller
     # useful links to internal and external resources
     response.menu += [
-        (SPAN('UI', _class='highlighted'), False, URL('realtime_data_processor', 'ui', 'index'), [
-            (T('feed_list'), False, URL('realtime_data_processor', 'ui', 'feed_list')),
+        (SPAN('Home', _class='highlighted'), False, URL('realtime_data_processor', 'default', 'index'), [
+            (T('feed_list'), False, URL('realtime_data_processor', 'default', 'feed_list')),
             #(T('feed_axis_list'), False, URL('realtime_data_processor', 'ui', 'feed_axis_list')),
             #(T('feed_data'), False, URL('realtime_data_processor', 'ui', 'feed_data')),
-            (T('admin_dashboard'), False, URL('realtime_data_processor', 'ui', 'admin_dashboard')),
+            (T('admin_dashboard'), False, URL('realtime_data_processor', 'default', 'admin_dashboard')),
             ]
         )]
     response.menu += [
