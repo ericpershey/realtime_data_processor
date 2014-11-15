@@ -1,21 +1,85 @@
 {{extend 'layout.html'}}
 <script src="{{=URL('static','js/prettyprint.js')}}"></script>
-<h3>{{= A("Feed List", _href=URL('feed_list'))}}</h3>
-<h3>{{= A("Feed %s" % feed.name, _href=URL('feed_axis_list/%s' % (feed_axis.id))) if feed_axis != None else None }}</h3>
-<h3>Feed Axis:{{=feed_axis.name if feed_axis != None else None}}</h3>
-<h3>Feed Data</h3>
+<h2>Feed:{{=A("%s" % (feed.name), _href=URL('feed_axis_list/%s' % (feed_axis.id))) if feed_axis != None else None }} / Axis:{{=feed_axis.name if feed_axis != None else None}}</h2>
+<h3>Manual Pull</h3>
 <!-- currently will only just get the last row, need to add usage of https://github.com/padolsey/prettyprint.js -->
 {{=A('get data',_class="btn btn-primary", callback=URL('service', 'feed_live.json', args=[feed.name, feed_axis.name]), target="new_data")}}
-<div id="new_data">new data goes here</div>
+<div id="new_data"></div>
+<h3>Ajax Polling</h3>
+<div id="new_data_polled">loading...</div>
+<script>
 
-{{if rows is not None:}}
-	{{=TABLE(
-		TR(list(TH(tup) for tup in ('x', 'y'))),
-		[
-			TR(row.x, row.y) for row in rows
-		]  
-	)}}
-{{pass}}
+</script>
+<h3>Ajax Polling with Features</h3>
+<div id="new_data_polled_with_features">loading...</div>
+<script>
+/*
+ * Todo:
+ * Grab the current data, send the current id, if the service has a higher id
+ * send the list of json back, otherwise nothing.  This will reduce traffic on
+ * low volume loads.  This also will show stuff that might have been missed if 
+ * you are displaying a graph of a fast feed. * 
+ * 
+ * I will need a data store locally (http://samcroft.co.uk/2013/using-localstorage-to-store-json/)
+ * it should be hidden
+ * I will store and pull from it to check for the id to send the request
+ * 
+ */
+	/*
+	 * These two funcsions are the simple ajax polling methods
+	 */
+	function get_data(){
+		var url = "{{=URL('service', 'feed_live.json', args=[feed.name, feed_axis.name])}}";
+		jQuery.getJSON(url, function(json_data){
+			jQuery("#new_data_polled").html(prettyPrint(json_data));
+		});
+	}
 
+	function poll(){
+		/*
+		 * recursivly poll for more data and ensure it's timeout remains constant
+		 */
+		setTimeout(function(){
+			get_data();
+			poll();
+			}
+		, 5000);
+	}
+	poll();
 
+	/*
+	 * This is the more complicated system of storing data in the page and 
+	 * retrieving it for comparison.
+	 */
+	function get_current_data(){
+		jQuery("#new_data_polled");
+	}
+	function compare_data(current_data, new_date){
+		
+	}
+	function poll2(){
+		/*
+		 * recursivly poll for more data and ensure it's timeout remains constant
+		 */
+		setTimeout(function(){
+			var current_data = get_current_data();
+			var new_data = get_data();
+			var compared_data = compare_data(current_data, new_data);
+			poll2();
+			}
+		, 5000);
+	}
+	//poll2();
+	function get_data_from_data_id(data_id){
+		/*
+		 * This will be used for pulling data for graphs so we don't miss any data.
+		 */
+		var url = "{{=URL('service', 'feed_live_from_data_id.json', args=[feed.name, feed_axis.name])}}";
+		url = url + "/" + data_id
+		jQuery.getJSON(url, function(json_data){
+			jQuery("#new_data_polled").html(prettyPrint(json_data));
+		});
+	}
+
+</script>
 {{#=BEAUTIFY(response._vars)}}

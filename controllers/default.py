@@ -79,12 +79,11 @@ def feed_data():
     if feed_axis_id != None:
         feed_axis = db(db.feed_axis.id == feed_axis_id).select().first()
         feed = db((db.feed.id == feed_axis.feed_id) & (auth_query)).select().first()
-        rows = db((db.feed_data.feed_axis_id == feed_axis_id)).select(db.feed_data.x, db.feed_data.y, orderby=db.feed_data.x)
+        #rows = db((db.feed_data.feed_axis_id == feed_axis_id)).select(db.feed_data.x, db.feed_data.y, orderby=db.feed_data.x)
     else:
         feed_axis = None
         feed = None
-        rows = None
-    return dict(feed=feed, feed_axis=feed_axis, rows=rows)
+    return dict(feed=feed, feed_axis=feed_axis)
 
 #Todo: admin only
 def admin_dashboard():

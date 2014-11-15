@@ -75,6 +75,27 @@ def feed_live():
         return dict(error="Please specifiy a feed and feed axis")
 
     row = db(db.feed_data.feed_axis_id == feed_axis.id).select(orderby=db.feed_data.entry_time).last()
+    #This is to make the format look nicer
+    dct = {'id':row.id, 'x':row.x, 'y':row.y, 'entry_time':row.entry_time}
+    return dct
 
-    return dict(row=row)
+@auth.requires_login()
+def feed_live_from_data_id():
+    '''
+    Now this is not really the best way to do this but we will return 
+    rows only greater than the id sent in.
+    '''
+    feed_name = request.args(0)
+    axis_name = request.args(1)
+    data_id = int(request.args(2))
+    try:
+        feed_conf, feed_axis = get_feed_axis(feed_name, axis_name)
+    except ExceptionNotFound, err:
+        return dict(error="Please specifiy a feed and feed axis")
+    if feed_name == None or feed_axis == None:
+        return dict(error="Please specifiy a feed and feed axis")
+
+    rows = db((db.feed_data.feed_axis_id == feed_axis.id) & (db.feed_data.id > data_id)).select(orderby=db.feed_data.entry_time)
+
+    return dict(data=rows)
 

@@ -1,4 +1,11 @@
 {{extend 'layout.html'}}
 <h1>Tools</h1>
-{{=A('Toggle Sin Wave Cron',_class="btn btn-primary", callback=URL('toggle_sin_wave'), target="sin_wave")}}
-<div id="sin_wave">{{='enabled' if get_sin_wave_state() == True else 'disabled'}}</div>
+{{=TABLE(
+	TR(TD(A('Toggle Sin Wave Task',_class="btn btn-primary", callback=URL('toggle_sin_wave'), target="sin_wave")), TD(DIV('enabled' if get_sin_wave_state() == True else 'disabled', _id="sin_wave")))
+)}}
+
+<style>
+.btn-primary {
+    width: 192px;
+} 
+</style>
