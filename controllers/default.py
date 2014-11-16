@@ -4,12 +4,29 @@ def index():
     return dict(message="Welcome to the Realtime Data Processor")
 
 @auth.requires_login()
+def ajax_feed_delete():
+    print "Deleting Feed %s" % request.args(0)
+    db(db.feed.id == request.args(0)).delete()
+    db.commit()
+    return {}
+
+@auth.requires_login()
 def feed_list():
     '''this will display the status of a feed or show the list of available 
     feeds'''
+    form = SQLFORM(db.feed)
+    if request.vars:
+        if form.accepts(request.vars):
+            response.flash = "Created new Feed"
+        elif form.errors:
+            response.flash = "Errors:%s" % BEAUTIFY(form.errors)
+        else:
+            response.flash = "Failed"    
+
     auth_query = db.feed.feed_owner_id == auth.user
     rows = db(auth_query).select()
-    return dict(rows=rows)
+
+    return dict(rows=rows, form=form)
 
 @auth.requires_login()
 def ajax_axis_add():
@@ -46,7 +63,7 @@ def ajax_axis_add():
 
 @auth.requires_login()
 def ajax_axis_delete():
-    print "Deleting %s" % request.args(0)
+    print "Deleting Axis %s" % request.args(0)
     db(db.feed_axis.id == request.args(0)).delete()
     db.commit()
     return {}
@@ -83,6 +100,21 @@ def feed_data():
     else:
         feed_axis = None
         feed = None
+    return dict(feed=feed, feed_axis=feed_axis)
+
+@auth.requires_login()
+def feed_sparkline():
+    '''mainly a copy of feed_data'''
+    auth_query = db.feed.feed_owner_id == auth.user
+    feed_axis_id = request.args(0)
+    if feed_axis_id != None:
+        feed_axis = db(db.feed_axis.id == feed_axis_id).select().first()
+        feed = db((db.feed.id == feed_axis.feed_id) & (auth_query)).select().first()
+        #rows = db((db.feed_data.feed_axis_id == feed_axis_id)).select(db.feed_data.x, db.feed_data.y, orderby=db.feed_data.x)
+    else:
+        feed_axis = None
+        feed = None
+    
     return dict(feed=feed, feed_axis=feed_axis)
 
 #Todo: admin only

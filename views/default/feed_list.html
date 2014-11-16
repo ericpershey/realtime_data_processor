@@ -3,8 +3,30 @@
 {{if rows is not None:}}
 	{{=TABLE(
 		[
-			A(row.name, _href=URL('feed_axis_list/%s' % (row.id))) for row in rows
+			TR(A(row.name, 
+			_href=URL('feed_axis_list/%s' % (row.id))),
+			INPUT(_type='button', _class="delete_feed", _value="Delete", 
+				_onclick = """
+					//lets make sure they want to do this
+					result = confirm("Do you want to delete feed with id %(feed_id)s");
+					if (result == true) {
+						//alert('deleting');
+						jQuery.post('%(url)s',
+								'' ,
+								jQuery('#row_feed_%(feed_id)s').remove()
+								);
+						
+					} else {
+						//alert('canceling');
+					}
+					""" % {
+							'feed_id':row.id, 
+							'url':URL("default", "ajax_feed_delete.load", args=[row.id])
+						}
+			), _id="row_feed_%s" % row.id) for row in rows
 		]  
 	)}}
 {{pass}}
+<h3>New Feed</h3>
+{{=form}}
 {{#=BEAUTIFY(response._vars)}}

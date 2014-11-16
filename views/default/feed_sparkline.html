@@ -1,0 +1,116 @@
+{{extend 'layout.html'}}
+<script src="{{=URL('static','js/prettyprint.js')}}"></script>
+
+
+<link rel="stylesheet" href="{{=URL('static','js/jquery-ui.min.css')}}">
+<script src="{{=URL('static','js/jquery-ui.min.js')}}"></script>
+
+<script src="{{=URL('static','js/renderers.js')}}"></script>
+<script src="{{=URL('static','js/d3/d3.min.js')}}"></script>
+<script src="{{=URL('static','js/jquery.sparklificator.js')}}"></script>
+
+<h2>Feed:{{=A("%s" % (feed.name), _href=URL('feed_axis_list/%s' % (feed_axis.id))) if feed_axis != None else None }} / Axis:{{=feed_axis.name if feed_axis != None else None}}</h2>
+
+
+
+<h3>Sparklines</h3>
+<span class='spanToSpark'></span>
+Old Data
+<div id='old_data'>loading...</div>
+New Data
+<div id='new_data'>loading...</div>
+
+
+
+<script>
+/*
+ * Todo:
+ * Grab the current data, send the current id, if the service has a higher id
+ * send the list of json back, otherwise nothing.  This will reduce traffic on
+ * low volume loads.  This also will show stuff that might have been missed if 
+ * you are displaying a graph of a fast feed. * 
+ * 
+ * I will need a data store locally (http://samcroft.co.uk/2013/using-localstorage-to-store-json/)
+ * it should be hidden
+ * I will store and pull from it to check for the id to send the request
+ * 
+ */
+
+	var axis_y = [];
+	
+	var settings = {data: axis_y, renderer: classicSparkline, position: 'top',
+	                paddingHeight: true, paddingWidth: true, width: 80, height: 25};
+
+	jQuery('.spanToSpark').sparklificator();
+
+	/*
+	 * These two funcsions are the simple ajax polling methods
+	 */
+	function get_and_store_data(){
+		var url = "{{=URL('service', 'feed_live.json', args=[feed.name, feed_axis.name])}}";
+		jQuery.getJSON(url, function(json_data){
+			var json_str_previous = localStorage.getItem('current_data');
+			axis_y.push(json_data.y);
+			jQuery('.spanToSpark').sparklificator('option', settings);
+			var json_str_current = JSON.stringify(json_data	);
+			localStorage.setItem('previous_data', json_str_previous);
+			localStorage.setItem('current_data', json_str_current);
+		});
+	}
+	function display_data(){
+		json_obj = JSON.parse(localStorage.getItem('previous_data'));
+		jQuery('#old_data').html(prettyPrint(json_obj));
+		json_obj = JSON.parse(localStorage.getItem('current_data'));
+		jQuery('#new_data').html(prettyPrint(json_obj));
+	}
+
+
+	function poll(){
+		/*
+		 * recursivly poll for more data and ensure it's timeout remains constant
+		 */
+		setTimeout(function(){
+			get_and_store_data();
+			display_data();
+			poll();
+			}
+		, 2000);
+	}
+	poll();
+
+	/*
+	 * This is the more complicated system of storing data in the page and 
+	 * retrieving it for comparison.
+	 */
+	function get_current_data(){
+		jQuery("#new_data_polled");
+	}
+	function compare_data(current_data, new_date){
+		
+	}
+	function poll2(){
+		/*
+		 * recursivly poll for more data and ensure it's timeout remains constant
+		 */
+		setTimeout(function(){
+			var current_data = get_current_data();
+			var new_data = get_data();
+			var compared_data = compare_data(current_data, new_data);
+			poll2();
+			}
+		, 5000);
+	}
+	//poll2();
+	function get_data_from_data_id(data_id){
+		/*
+		 * This will be used for pulling data for graphs so we don't miss any data.
+		 */
+		var url = "{{=URL('service', 'feed_live_from_data_id.json', args=[feed.name, feed_axis.name])}}";
+		url = url + "/" + data_id;
+		jQuery.getJSON(url, function(json_data){
+			jQuery("#new_data_polled").html(prettyPrint(json_data));
+		});
+	}
+
+</script>
+{{#=BEAUTIFY(response._vars)}}
