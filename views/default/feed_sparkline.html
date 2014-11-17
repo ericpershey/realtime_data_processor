@@ -9,7 +9,7 @@
 <script src="{{=URL('static','js/d3/d3.min.js')}}"></script>
 <script src="{{=URL('static','js/jquery.sparklificator.js')}}"></script>
 
-<h2>Feed:{{=A("%s" % (feed.name), _href=URL('feed_axis_list/%s' % (feed_axis.id))) if feed_axis != None else None }} / Axis:{{=feed_axis.name if feed_axis != None else None}}</h2>
+<h2>Feed:{{=A("%s" % (feed.name), _href=URL('feed_axis_list/%s' % (feed.id))) if feed != None else None }} / Axis:{{=feed_axis.name if feed_axis != None else None}}</h2>
 
 
 
@@ -39,7 +39,7 @@ New Data
 	var axis_y = [];
 	
 	var settings = {data: axis_y, renderer: classicSparkline, position: 'top',
-	                paddingHeight: true, paddingWidth: true, width: 80, height: 25};
+	                paddingHeight: true, paddingWidth: true, width: 256, height: 128};
 
 	jQuery('.spanToSpark').sparklificator();
 

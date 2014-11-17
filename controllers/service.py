@@ -75,17 +75,24 @@ def feed_live():
         return dict(error="Please specifiy a feed and feed axis")
 
     row = db(db.feed_data.feed_axis_id == feed_axis.id).select(orderby=db.feed_data.entry_time).last()
-    #now lets get the one right before it
-    row_prev = db((db.feed_data.feed_axis_id == feed_axis.id) & (db.feed_data.entry_time < row.entry_time)).select(orderby=db.feed_data.entry_time).last()
-    #This is to make the format look nicer
-    if row_prev.y == row.y: #constant
-        state = 0
-    elif row_prev.y < row.y: #lower
-        state = 1
-    else: #raise
-        state = -1
+    if row:
+        #now lets get the one right before it
+        row_prev = db((db.feed_data.feed_axis_id == feed_axis.id) & (db.feed_data.entry_time < row.entry_time)).select(orderby=db.feed_data.entry_time).last()
+        #This is to make the format look nicer
+        if row_prev.y == row.y: #constant
+            state = 0
+        elif row_prev.y < row.y: #lower
+            state = 1
+        else: #raise
+            state = -1
+        dct = {'id':row.id, 'x':row.x, 'y':row.y, 'entry_time':row.entry_time, 'state':state}
+    else:
 
-    dct = {'id':row.id, 'x':row.x, 'y':row.y, 'entry_time':row.entry_time, 'state':state}
+        row_prev = row
+        state = None
+        dct = {'id':None, 'x':None, 'y':None, 'entry_time':None, 'state':state}
+
+
     return dct
 
 @auth.requires_login()

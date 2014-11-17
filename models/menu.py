@@ -38,22 +38,22 @@ def _():
     ctr = request.controller
     # useful links to internal and external resources
     response.menu += [
-        (SPAN('Home', _class='highlighted'), False, URL('realtime_data_processor', 'default', 'index'), [
-            (T('feed_list'), False, URL('realtime_data_processor', 'default', 'feed_list')),
+        (SPAN('Home', _class='highlighted'), False, URL('default', 'index'), [
+            (T('feed_list'), False, URL('default', 'feed_list')),
             #(T('feed_axis_list'), False, URL('realtime_data_processor', 'ui', 'feed_axis_list')),
             #(T('feed_data'), False, URL('realtime_data_processor', 'ui', 'feed_data')),
-            (T('admin_dashboard'), False, URL('realtime_data_processor', 'default', 'admin_dashboard')),
+            (T('admin_dashboard'), False, URL('default', 'admin_dashboard')),
             ]
         )]
     response.menu += [
-        (SPAN('Tools', _class='highlighted'), False, URL('realtime_data_processor', 'tools', 'index'), [
+        (SPAN('Tools', _class='highlighted'), False, URL('tools', 'index'), [
             ]
         )]
 
     response.menu += [
-        (SPAN('Services', _class='highlighted'), False, URL('realtime_data_processor', 'service', 'index'), [
-            #(T('feed_input'), False, URL('realtime_data_processor', 'service', 'feed_input')),
-            #(T('feed_output'), False, URL('realtime_data_processor', 'service', 'feed_output')),
+        (SPAN('Services', _class='highlighted'), False, URL('service', 'index'), [
+            #(T('feed_input'), False, URL('service', 'feed_input')),
+            #(T('feed_output'), False, URL('service', 'feed_output')),
             ]
         )]
     response.menu += [

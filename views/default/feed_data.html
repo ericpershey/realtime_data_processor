@@ -1,6 +1,6 @@
 {{extend 'layout.html'}}
 <script src="{{=URL('static','js/prettyprint.js')}}"></script>
-<h2>Feed:{{=A("%s" % (feed.name), _href=URL('feed_axis_list/%s' % (feed_axis.id))) if feed_axis != None else None }} / Axis:{{=feed_axis.name if feed_axis != None else None}}</h2>
+<h2>Feed:{{=A("%s" % (feed.name), _href=URL('feed_axis_list/%s' % (feed.id))) if feed != None else None }} / Axis:{{=feed_axis.name if feed_axis != None else None}}</h2>
 
 <h3>Postable Link</h3>
 <p>This is the URL you can use inside a script to send your authentication and data to.</p>
@@ -18,7 +18,7 @@
 	<tr><td>Up</td><td style="color:green">green</td></tr>
 	<tr><td>Down</td><td style="color:red">red</td></tr>
 	<tr><td>Equal to</td><td style="color:blue">blue</td></tr>
-	<tr><td>Only one row exists</td><td style="color:gray">gray</td></tr>
+	<tr><td>Zero or One row exists</td><td style="color:gray">gray</td></tr>
 </table>
 <div id="new_data_polled">loading...</div>
 
