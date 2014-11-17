@@ -1,11 +1,25 @@
 {{extend 'layout.html'}}
 <script src="{{=URL('static','js/prettyprint.js')}}"></script>
 <h2>Feed:{{=A("%s" % (feed.name), _href=URL('feed_axis_list/%s' % (feed_axis.id))) if feed_axis != None else None }} / Axis:{{=feed_axis.name if feed_axis != None else None}}</h2>
+
+<h3>Postable Link</h3>
+<p>This is the URL you can use inside a script to send your authentication and data to.</p>
+<p>Datetime format is '%Y-%m-%d %H:%M:%S.%f</p>  
+{{=URL('service', 'feed_input.json', args=['sin_wave_over_time_in_seconds', 'axis_at_0_degrees'], vars={'x':request.now, 'y':3.14159265})}}
+
 <h3>Manual Pull</h3>
+
 <!-- currently will only just get the last row, need to add usage of https://github.com/padolsey/prettyprint.js -->
 {{=A('get data',_class="btn btn-primary", callback=URL('service', 'feed_live.json', args=[feed.name, feed_axis.name]), target="new_data")}}
 <div id="new_data"></div>
 <h3>Live AJAX Polling</h3>
+<p>This will show you the last entry in the database and it will be colored.  The color is based on if the record is higher or lower or equal to the previous record.</p>
+<table>
+	<tr><td>Up</td><td style="color:green">green</td></tr>
+	<tr><td>Down</td><td style="color:red">red</td></tr>
+	<tr><td>Equal to</td><td style="color:blue">blue</td></tr>
+	<tr><td>Only one row exists</td><td style="color:gray">gray</td></tr>
+</table>
 <div id="new_data_polled">loading...</div>
 
 <script>

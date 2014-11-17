@@ -10,7 +10,7 @@
 			[
 				TR(
 					row.feed.name, 
-					A(row.feed_axis.name, _href=URL('feed_data/%s' % (row.feed_axis.id))) + ' ' +  A('sparkline', _href=URL('feed_sparkline/%s' % (row.feed_axis.id))), 
+					A(row.feed_axis.name, _href=URL('feed_data/%s' % (row.feed_axis.id))) + ' or ' +  A('sparkline', _href=URL('feed_sparkline/%s' % (row.feed_axis.id))) + ' or ' +  A('graph', _href=URL('feed_graph/%s' % (feed.id))), 
 					row.count,
 					INPUT(_type='button', _class="delete_axis", _value="Delete", 
 						_onclick = """

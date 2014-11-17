@@ -99,8 +99,10 @@ auth.settings.reset_password_requires_verification = True
 #Table Definitions
 db.define_table("feed",
     Field('name', 'string', unique=True, requires=IS_NOT_EMPTY()),
-    Field('x_cast', 'string', requires=IS_NOT_EMPTY()), #this will hold the name of the type the x should be cast to
-    Field('y_cast', 'string', requires=IS_NOT_EMPTY()), #this will hold the name of the type the y should be cast to
+    #I had some major problems in this simple form after adding the IS_IN_SET requirement
+    #It magically started working after logging out and restarting web2py twice
+    Field('x_cast', 'string', requires=IS_IN_SET(['datetime'], error_message="choose a x_cast method")), #this will hold the name of the type the x should be cast to
+    Field('y_cast', 'string', requires=IS_IN_SET(['int', 'float'], error_message="choose a y_cast method")), #this will hold the name of the type the y should be cast to
     Field("feed_owner_id", 'reference auth_user'),
     auth.signature,
     )

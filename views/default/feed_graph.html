@@ -1,0 +1,120 @@
+{{extend 'layout.html'}}
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script src="{{=URL('static','js/d3/d3.min.js')}}"></script>
+
+<h2>Feed:{{=A("%s" % (feed.name), _href=URL('feed_axis_list/%s' % (feed.id))) if feed != None else None }}</h2>
+
+
+The Graph
+<svg id='the_graph' width="800" height="480"></svg>
+
+<script>
+/*
+ * Todo:
+ * Grab the current data, send the current id, if the service has a higher id
+ * send the list of json back, otherwise nothing.  This will reduce traffic on
+ * low volume loads.  This also will show stuff that might have been missed if 
+ * you are displaying a graph of a fast feed. * 
+ * 
+ * I will need a data store locally (http://samcroft.co.uk/2013/using-localstorage-to-store-json/)
+ * it should be hidden
+ * I will store and pull from it to check for the id to send the request
+ * 
+ */
+
+	//i learned much of d3 graphs from here:
+	//http://www.sitepoint.com/creating-simple-line-bar-charts-using-d3-js/
+	var lineData = [{
+	  x: 1,
+	  y: 5
+	}, {
+	  x: 20,
+	  y: 20
+	}, {
+	  x: 40,
+	  y: 10
+	}, {
+	  x: 60,
+	  y: 40
+	}, {
+	  x: 80,
+	  y: 5
+	}, {
+	  x: 100,
+	  y: 60
+	}];
+	var vis = d3.select('#the_graph'),
+	    WIDTH = 800,
+	    HEIGHT = 480,
+	    MARGINS = {
+	      top: 20,
+	      right: 20,
+	      bottom: 20,
+	      left: 50
+	    },
+	    xRange = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(lineData, function(d) {
+	      return d.x;
+	    }), d3.max(lineData, function(d) {
+	      return d.x;
+	    })]),
+	    yRange = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min(lineData, function(d) {
+	      return d.y;
+	    }), d3.max(lineData, function(d) {
+	      return d.y;
+	    })]),
+	    xAxis = d3.svg.axis()
+	      .scale(xRange)
+	      .tickSize(5)
+	      .tickSubdivide(true),
+	    yAxis = d3.svg.axis()
+	      .scale(yRange)
+	      .tickSize(5)
+	      .orient('left')
+	      .tickSubdivide(true);
+	 
+	vis.append('svg:g')
+	  .attr('class', 'x axis')
+	  .attr('transform', 'translate(0,' + (HEIGHT - MARGINS.bottom) + ')')
+	  .call(xAxis);
+	 
+	vis.append('svg:g')
+	  .attr('class', 'y axis')
+	  .attr('transform', 'translate(' + (MARGINS.left) + ',0)')
+	  .call(yAxis);
+	  
+	/*
+	function feed_live_get_cache(feed_axis_id){
+		//This will get the data and then colorize the pretty printed data
+		
+		var feed_axis_ids = {{=XML(feed_axis_ids)}};
+		var cache;
+		for (var i = 0; i < feed_axis_ids.length; i++){
+			
+		}
+	  	for (var i in feed_axis_ids) {
+			var url = "{{=URL('service', 'feed_live_get_cache.json')}}" + "/" + feed_axis_ids[i];
+			jQuery.getJSON(url, function(json_data){
+				for (var i = 0; i < json_data.length; i++){
+										
+					}
+				}
+			}
+		}
+	*/
+	var lineFunc = d3.svg.line()
+	  .x(function(d) {
+	    return xRange(d.x);
+	  })
+	  .y(function(d) {
+	    return yRange(d.y);
+	  })
+	  .interpolate('linear');
+	vis.append('svg:path')
+	  .attr('d', lineFunc(lineData))
+	  .attr('stroke', 'blue')
+	  .attr('stroke-width', 2)
+	  .attr('fill', 'none');
+	  
+
+</script>
+{{#=BEAUTIFY(response._vars)}}

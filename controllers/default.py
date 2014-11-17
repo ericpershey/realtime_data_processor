@@ -5,8 +5,10 @@ def index():
 
 @auth.requires_login()
 def ajax_feed_delete():
-    print "Deleting Feed %s" % request.args(0)
-    db(db.feed.id == request.args(0)).delete()
+    '''this will delete the feed record that only the user has access to'''
+    feed_id = request.args(0)
+    auth_query = db.feed.feed_owner_id == auth.user
+    db((db.feed.id == feed_id) & auth_query).delete()
     db.commit()
     return {}
 
@@ -16,21 +18,22 @@ def feed_list():
     feeds'''
     form = SQLFORM(db.feed)
     if request.vars:
-        if form.accepts(request.vars):
+        if form.accepts(request, session):
             response.flash = "Created new Feed"
         elif form.errors:
             response.flash = "Errors:%s" % BEAUTIFY(form.errors)
         else:
-            response.flash = "Failed"    
+            response.flash = "Failed"
 
     auth_query = db.feed.feed_owner_id == auth.user
     rows = db(auth_query).select()
+
 
     return dict(rows=rows, form=form)
 
 @auth.requires_login()
 def ajax_axis_add():
-    '''This will handle the adding of axes
+    '''This will handle the adding of axes via ajax
     '''
     try:
         feed_id = int(request.args(0))
@@ -56,15 +59,15 @@ def ajax_axis_add():
 
         row = row + TR(_id='feed_axis_list_form_result')
 
-        print "HELP", str(request.vars)
     except Exception, err:
         print '\n'.join(extract_traceback())
     return dict(row=row)
 
 @auth.requires_login()
 def ajax_axis_delete():
-    print "Deleting Axis %s" % request.args(0)
-    db(db.feed_axis.id == request.args(0)).delete()
+    '''this will delete axis the record that only the user has access to'''
+    auth_query = db.feed.feed_owner_id == auth.user
+    db((db.feed_axis.id == request.args(0)) & (auth_query)).delete()
     db.commit()
     return {}
 
@@ -80,9 +83,7 @@ def feed_axis_list():
     #rows = db((db.feed_axis.feed_id == feed_id) & (auth_query) & (db.feed_axis.feed_id == db.feed.id)).select(db.feed_axis.ALL, db.feed.ALL)
     #with count
     rows = db((db.feed_axis.feed_id == feed_id) & (auth_query) & (db.feed_axis.feed_id == db.feed.id)).select(db.feed_axis.ALL, db.feed.ALL, count, left=db.feed_data.on(db.feed_axis.id == db.feed_data.feed_axis_id), groupby=(db.feed.name, db.feed_axis.name))
-    print "getting form with feed_id:%s" % feed_id
     form = get_axis_form(feed_id)
-    print form.hidden_fields()
     return dict(feed=feed, rows=rows, form=form)
 
 @auth.requires_login()
@@ -114,8 +115,27 @@ def feed_sparkline():
     else:
         feed_axis = None
         feed = None
-    
+
     return dict(feed=feed, feed_axis=feed_axis)
+
+@auth.requires_login()
+def feed_graph():
+    '''This will show the graph for a feed (axes)'''
+    auth_query = db.feed.feed_owner_id == auth.user
+    feed_id = request.args(0)
+    if feed_id:
+        feed_axis_ids = []
+        feed = db((db.feed.id == feed_id) & (auth_query)).select().first()
+        rows = db(db.feed_axis.feed_id == feed.id).select()
+        for row in rows:
+            #dangerous casting here as this might have problems with MANY axis, not likely but notable
+            feed_axis_ids.append(int(row.id))
+        #rows = db((db.feed_data.feed_axis_id == feed_axis_id)).select(db.feed_data.x, db.feed_data.y, orderby=db.feed_data.x)
+    else:
+        feed_axis_ids = []
+        feed = None
+
+    return dict(feed=feed, feed_axis_ids=feed_axis_ids)
 
 #Todo: admin only
 def admin_dashboard():
@@ -153,6 +173,8 @@ def admin_dashboard():
         a = row.as_dict()
         lst.append(a)
     return dict(lst=lst, rows=rows)
+
+
 
 def user():
     """

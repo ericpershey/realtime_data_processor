@@ -52,8 +52,8 @@ def _():
 
     response.menu += [
         (SPAN('Services', _class='highlighted'), False, URL('realtime_data_processor', 'service', 'index'), [
-            (T('feed_input'), False, URL('realtime_data_processor', 'service', 'feed_input')),
-            (T('feed_output'), False, URL('realtime_data_processor', 'service', 'feed_output')),
+            #(T('feed_input'), False, URL('realtime_data_processor', 'service', 'feed_input')),
+            #(T('feed_output'), False, URL('realtime_data_processor', 'service', 'feed_output')),
             ]
         )]
     response.menu += [

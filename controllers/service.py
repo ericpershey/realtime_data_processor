@@ -89,6 +89,25 @@ def feed_live():
     return dct
 
 @auth.requires_login()
+def feed_live_get_cache():
+    '''This will grab the last 32 records to populate the cache'''
+    row_count = 32
+    feed_axis_id = request.args(0)
+    #give me the last 32 records
+    #reverse order with limit
+    rows = db(db.feed_data.feed_axis_id == feed_axis.id).select(orderby= ~db.feed_data.entry_time, limitby=(0, row_count))
+
+    cache = []
+    for row in rows:
+        cache.append({'x':row.x, 'y':row.y})
+
+    #this depends on all cache filling calls be the same length.
+    while len(cache) < row_count:
+        cache.insert(0, None)
+
+    return cache
+
+@auth.requires_login()
 def feed_live_from_data_id():
     '''
     Now this is not really the best way to do this but we will return 
