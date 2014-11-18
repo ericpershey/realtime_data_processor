@@ -2,6 +2,10 @@
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script src="{{=URL('static','js/d3/d3.min.js')}}"></script>
 
+<link href="{{=URL('static','js/metrics-graphics/css/metricsgraphics.css')}}" rel='stylesheet' type="text/css">
+<link href="{{=URL('static','js/metrics-graphics/css/metricsgraphics-dark.css')}}" rel='stylesheet' type="text/css">
+<script src="{{=URL('static','js/metrics-graphics/metricsgraphics.min.js')}}"></script>
+
 <h2>Feed:{{=A("%s" % (feed.name), _href=URL('feed_axis_list/%s' % (feed.id))) if feed != None else None }}</h2>
 
 
