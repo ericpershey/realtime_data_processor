@@ -5,12 +5,12 @@
 <h3>Postable Link</h3>
 <p>This is the URL you can use inside a script to send your authentication and data to.</p>
 <p>Datetime format is '%Y-%m-%d %H:%M:%S.%f</p>  
-{{=URL('service', 'feed_input.json', args=['sin_wave_over_time_in_seconds', 'axis_at_0_degrees'], vars={'x':request.now, 'y':3.14159265})}}
+{{=URL('service', 'feed_input.json', args=[feed.name, feed_axis.name], vars={'x':request.now, 'y':3.14159265})}}
 
 <h3>Manual Pull</h3>
 
 <!-- currently will only just get the last row, need to add usage of https://github.com/padolsey/prettyprint.js -->
-{{=A('get data',_class="btn btn-primary", callback=URL('service', 'feed_live.json', args=[feed.name, feed_axis.name]), target="new_data")}}
+{{=A('get data',_class="btn btn-primary", callback=URL('service', 'feed_live_axis.json', args=[feed.name, feed_axis.name]), target="new_data")}}
 <div id="new_data"></div>
 <h3>Live AJAX Polling</h3>
 <p>This will show you the last entry in the database and it will be colored.  The color is based on if the record is higher or lower or equal to the previous record.</p>
@@ -30,7 +30,7 @@
 		/*
 		 * This will get the data and then colorize the pretty printed data
 		 */
-		var url = "{{=URL('service', 'feed_live.json', args=[feed.name, feed_axis.name])}}";
+		var url = "{{=URL('service', 'feed_live_axis.json', args=[feed.name, feed_axis.name])}}";
 		jQuery.getJSON(url, function(json_data){
 			var color;
 			if (json_data.state == 0) {

@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import datetime
+import calendar
+
 from gluon.serializers import json
 auth.settings.allow_basic_login = True
 
@@ -64,7 +67,7 @@ def feed_output():
 
 
 @auth.requires_login()
-def feed_live():
+def feed_live_axis():
     feed_name = request.args(0)
     axis_name = request.args(1)
     try:
@@ -96,23 +99,28 @@ def feed_live():
     return dct
 
 @auth.requires_login()
-def feed_live_get_cache():
+def feed_cache():
     '''This will grab the last 32 records to populate the cache'''
     row_count = 32
-    feed_axis_id = request.args(0)
-    #give me the last 32 records
-    #reverse order with limit
-    rows = db(db.feed_data.feed_axis_id == feed_axis.id).select(orderby= ~db.feed_data.entry_time, limitby=(0, row_count))
+    feed_id = request.args(0)
+    #get each axis
+    axes = db(db.feed_axis.feed_id == feed_id).select(db.feed_axis.name, db.feed_axis.id)
+    #get each axes data
+    x_accessor = 'date'
+    y_accessor = set()
+    max_ids = {}
+    data_lst = []
+    for axis in axes:
+        #give me the last 32 records
+        #reverse order with limit
+        rows = db(db.feed_data.feed_axis_id == axis.id).select(orderby= ~db.feed_data.entry_time, limitby=(0, row_count))
+        y_accessor.add(axis.name)
+        axis_data_lst, max_id = process_row(rows, axis.name)
+        max_ids[axis.name] = max_id
+        data_lst.extend(axis_data_lst)
 
-    cache = []
-    for row in rows:
-        cache.append({'x':row.x, 'y':row.y})
 
-    #this depends on all cache filling calls be the same length.
-    while len(cache) < row_count:
-        cache.insert(0, None)
-
-    return cache
+    return {'data':data_lst, 'y_accessor':list(y_accessor), 'x_accessor':x_accessor, 'max_ids':max_ids}
 
 @auth.requires_login()
 def feed_live_from_data_id():
@@ -131,6 +139,6 @@ def feed_live_from_data_id():
         return dict(error="Please specifiy a feed and feed axis")
 
     rows = db((db.feed_data.feed_axis_id == feed_axis.id) & (db.feed_data.id > data_id)).select(orderby=db.feed_data.entry_time)
-
-    return dict(data=rows)
+    axis_data_lst, max_id = process_row(rows, feed_axis.name)
+    return dict(data=axis_data_lst, max_id=max_id)
 

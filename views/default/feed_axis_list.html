@@ -1,5 +1,6 @@
 {{extend 'layout.html'}}
 <h3>Feed Conf {{= A(feed.name, _href=URL('feed_list/%s' % (feed.id))) if feed != None else None }}</h3>
+<h3>{{=A('Graph', _href=URL('feed_graph/%s' % (feed.id)))}}</h3>
 {{if rows is not None:}}
 	<form action="#" enctype="multipart/form-data" id="the_form" method="post">
 	<!-- This creates the header, and each row of the table.
@@ -10,7 +11,7 @@
 			[
 				TR(
 					row.feed.name, 
-					A(row.feed_axis.name, _href=URL('feed_data/%s' % (row.feed_axis.id))) + ' or ' +  A('sparkline', _href=URL('feed_sparkline/%s' % (row.feed_axis.id))) + ' or ' +  A('graph', _href=URL('feed_graph/%s' % (feed.id))), 
+					A(row.feed_axis.name, _href=URL('feed_data/%s' % (row.feed_axis.id))) + ' or ' +  A('sparkline', _href=URL('feed_sparkline/%s' % (row.feed_axis.id))), 
 					row.count,
 					INPUT(_type='button', _class="delete_axis", _value="Delete", 
 						_onclick = """

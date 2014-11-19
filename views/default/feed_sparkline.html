@@ -47,7 +47,7 @@ New Data
 	 * These two funcsions are the simple ajax polling methods
 	 */
 	function get_and_store_data(){
-		var url = "{{=URL('service', 'feed_live.json', args=[feed.name, feed_axis.name])}}";
+		var url = "{{=URL('service', 'feed_live_axis.json', args=[feed.name, feed_axis.name])}}";
 		jQuery.getJSON(url, function(json_data){
 			var json_str_previous = localStorage.getItem('current_data');
 			axis_y.push(json_data.y);
@@ -78,39 +78,6 @@ New Data
 	}
 	poll();
 
-	/*
-	 * This is the more complicated system of storing data in the page and 
-	 * retrieving it for comparison.
-	 */
-	function get_current_data(){
-		jQuery("#new_data_polled");
-	}
-	function compare_data(current_data, new_date){
-		
-	}
-	function poll2(){
-		/*
-		 * recursivly poll for more data and ensure it's timeout remains constant
-		 */
-		setTimeout(function(){
-			var current_data = get_current_data();
-			var new_data = get_data();
-			var compared_data = compare_data(current_data, new_data);
-			poll2();
-			}
-		, 5000);
-	}
-	//poll2();
-	function get_data_from_data_id(data_id){
-		/*
-		 * This will be used for pulling data for graphs so we don't miss any data.
-		 */
-		var url = "{{=URL('service', 'feed_live_from_data_id.json', args=[feed.name, feed_axis.name])}}";
-		url = url + "/" + data_id;
-		jQuery.getJSON(url, function(json_data){
-			jQuery("#new_data_polled").html(prettyPrint(json_data));
-		});
-	}
 
 </script>
 {{#=BEAUTIFY(response._vars)}}

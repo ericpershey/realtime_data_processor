@@ -10,7 +10,7 @@
 
 
 The Graph
-<div class='col-lg-12 text-center extended-y-ticks' id='missing1'></div>
+<div class='col-lg-12 text-center extended-y-ticks' id='feed_graph'></div>
 
 
 <script>
@@ -29,77 +29,72 @@ The Graph
 
 	//i learned much of d3 graphs from here:
 	//http://www.sitepoint.com/creating-simple-line-bar-charts-using-d3-js/
-
+	var the_data;
+	var x_accessor;
+	var y_accessor;
+	var max_ids = null;
 	$(document).ready(function() {
 
-		var data = 
-			[
-			    [
-			        {
-			            "date": "2014-01-01",
-			            "value": 10234000
-			        },
-			        {
-			            "date": "2014-01-02",
-			            "value": 10373978
-			        },
-			        {
-			            "date": "2014-01-03",
-			            "value": 10433459
-			        }
-			    ], 
-			    [
-			        {
-			            "date": "2014-01-01",
-			            "value2": 1230000
-			        },
-			        {
-			            "date": "2014-01-02",
-			            "value2": 10372348
-			        },
-			        {
-			            "date": "2014-01-03",
-			            "value2": 10493749
-			        }
-			    ], 
-			    [
-			        {
-			            "date": "2014-01-01",
-			            "value3": 100056700
-			        },
-			        {
-			            "date": "2014-01-02",
-			            "value3": 10379978
-			        },
-			        {
-			            "date": "2014-01-03",
-			            "value3": 10478949
-			        }
-			    ] 		
-			]  
+	/*
+		 * This is the more complicated system of storing data in the page and 
+		 * retrieving it for comparison.
+		 */
 
-		//data = convert_dates(data, 'date');
 		
+		function prime_cache(){
+			var url = "{{=URL('service', 'feed_cache.json', args=[feed.id])}}";
+			jQuery.getJSON(url, function(json_data){
+				//var json_str_previous = localStorage.getItem('current_data');
+				x_accessor = json_data.x_accessor;
+				y_accessor = json_data.y_accessor;
+				var temp_data = json_data.data;
+				//temp_data = convert_dates(temp_data, 'date');
+				if (json_data.max_ids != null){
+					//the_data.push.apply(the_data, temp_data);
+					the_data = temp_data;
+					for (var i = 0; i < y_accessor.length; i++){
+						max_ids = {};
+						if (json_data.max_ids[y_accessor[i]] != null) {
+							max_ids[y_accessor[i]] = json_data.max_ids[y_accessor[i]];
+						} else {
+							max_ids[y_accessor[i]] = 0;	
+						}
+					}					
+					
+					max_ids = json_data.max_ids;
+				} else {
+					//handling the no data case
+					for (var i = 0; i < y_accessor.length; i++){
+						max_ids = {};
+						max_ids[y_accessor[i]] = 0;
+					}
+				}
+				//var json_str = JSON.stringify(json_data);
+				//localStorage.setItem('data', json_str);
+			});
+		}
+	
+	
+		function get_data_from_data_id(feed_name, axis_name, max_data_id){
+			/*
+			 * This will be used for pulling data for graphs so we don't miss any data.
+			 */
+			var url = "{{=URL('service', 'feed_live_from_data_id.json')}}";
+			url = url + "/" + feed_name + "/" + axis_name + "/" + max_data_id;
+			jQuery.getJSON(url, function(json_data){
+				if (json_data.max_id != null){
+					the_data.push.apply(the_data, json_data.data);
+					max_ids[axis_name] = json_data.max_id;
+				} 
+			});
+		}
+
 		var torso = {};
-		torso.width = 375;
-		torso.height = 200;
+		torso.width = 800;
+		torso.height = 480;
 		torso.right = 20;
 		/*
-	    //var all_the_data = clone(data[0]);
-        var all_the_data = JSON.parse(JSON.stringify(data[0]));
-	    for (var i = 1; i < data.length; i ++){
-	        for (var j=0; j < data[i].length; j++){
-	            if (i==2 && all_the_data[j]['date'] < new Date('2014-02-01')){
-	                // pass
-	            } else if (i==1 && all_the_data[j]['date'] > new Date('2014-03-22')) {
-	                // pass
-	            } else {
-	                all_the_data[j]['value'+(i+1)] = data[i][j].value;    
-	
-	            }
-	        }
-	    }*/
-	    var data2 = [
+	    var data = [
 				{
 					"date": "2014-01-01",
 				    "value": 100056700
@@ -125,20 +120,61 @@ The Graph
 				    "value2": 102654700
 				}
 	    	]
-	    data2 = convert_dates(data2, 'date');
-	    data_graphic({
-	        title:"Handling Different Sized Lines in a Single Array",
-	        description: "How do you handle data with multiple implied time series lengths?",
-	        data: data2,
-	        width: torso.width*2,
-	        height: torso.height,
-	        right: torso.right,
-	        target: '#missing1',
-	        linked: true,
-	        y_extended_ticks: true,
-	        x_accessor: 'date',
-	        y_accessor: ['value', 'value2'] //['value', 'value2', 'value3']
-	    });
+	    data = convert_dates(data, 'date');
+		*/
+		
+		function poll(){
+				/*
+				 * recursivly poll for more data and ensure it's timeout remains constant
+				 */
+				setTimeout(function(){
+					//for each axis do this:
+					
+					for (var i = 0; i < y_accessor.length; i++) {
+						var feed_name = '{{=feed.name}}';
+						axis_name = y_accessor[i];
+						if (max_ids[axis_name] == null){
+							max_ids[axis_name] = 0;
+						}
+						var max_data_id = max_ids[axis_name];
+						get_data_from_data_id(feed_name, axis_name, max_data_id);
+						
+					}
+					
+					//lets check and see if there is data for each axis
+					var non_null_y_accessor = [];
+					for (var i = 0; i < y_accessor.length; i++){
+						console.log(y_accessor[i]);
+						if (max_ids[y_accessor[i]] != null){
+							non_null_y_accessor.push(y_accessor[i]);
+						}
+					}
+					console.log(non_null_y_accessor);
+				    data_graphic({
+				        title:"Data for Feed {{=feed.name}}",
+				        description: "Feed Data",
+				        data: the_data,
+				        width: torso.width*2,
+				        height: torso.height,
+				        right: torso.right,
+				        target: '#feed_graph',
+				        interpolate: 'basic',
+				        area: false,
+				        //format: 'percentage',
+				        //show_confidence_band: ['l', 'u'],
+				        //linked: true,
+				        //y_extended_ticks: true,
+				        x_accessor: x_accessor, //'date',
+				        y_accessor: non_null_y_accessor//y_accessor//['value', 'value2'] 
+				    });
+					poll();
+					}
+				, 1000);
+			}
+		prime_cache();
+		poll();	    
+	    
+
 	    
 	});
 </script>

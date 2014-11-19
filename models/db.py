@@ -3,6 +3,7 @@ import os
 import sys
 import datetime
 import traceback
+import calendar
 
 def extract_traceback(include_time=True):
     """Extract a traceback, format it nicely and return it"""
@@ -262,4 +263,36 @@ if db(db.feed).isempty() or recreate_database:
 ## after defining tables, uncomment below to enable auditing
 # auth.enable_record_versioning(db)
 
+def datetime_to_epochtime(dt):
+    '''given a date object, convert it to unix/epoch time'''
+    return calendar.timegm(dt.utctimetuple())
 
+def date_parse(dt_str):
+    '''
+    Turn the date strings into date objects'''
+    dt = None
+    try:
+        dt = datetime.datetime.strptime(dt_str, '%Y-%m-%d %H:%M:%S.%f')
+    except ValueError:
+        try:
+            dt = datetime.datetime.strptime(dt_str, '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            try:
+                dt = datetime.datetime.strptime(dt_str, '%Y-%m-%d')
+            except ValueError:
+                raise
+    return dt
+
+def process_row(rows, axis_name):
+    data_lst = []
+    max_id = None
+    for row in rows:
+        #it would be nice to use dateutil here, but reducing dependancies
+        dt = date_parse(row.x)
+        dct = {axis_name:row.y, 'date':datetime_to_epochtime(dt)}
+        data_lst.append(dct)
+
+        #update the max ids for each axis
+        if row.id > max_id:
+            max_id = row.id
+    return data_lst, max_id
