@@ -2,15 +2,16 @@
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script src="{{=URL('static','js/d3/d3.min.js')}}"></script>
 
-<link href="{{=URL('static','js/metrics-graphics/css/metricsgraphics.css')}}" rel='stylesheet' type="text/css">
-<link href="{{=URL('static','js/metrics-graphics/css/metricsgraphics-dark.css')}}" rel='stylesheet' type="text/css">
-<script src="{{=URL('static','js/metrics-graphics/metricsgraphics.min.js')}}"></script>
+<link href="{{=URL('static','js/metric-graphics/css/metricsgraphics.css')}}" rel='stylesheet' type="text/css">
+<!--<link href="{{=URL('static','js/metric-graphics/css/metricsgraphics-dark.css')}}" rel='stylesheet' type="text/css">-->
+<script src="{{=URL('static','js/metric-graphics/js/metricsgraphics.min.js')}}"></script>
 
 <h2>Feed:{{=A("%s" % (feed.name), _href=URL('feed_axis_list/%s' % (feed.id))) if feed != None else None }}</h2>
 
 
 The Graph
-<svg id='the_graph' width="800" height="480"></svg>
+<div class='col-lg-12 text-center extended-y-ticks' id='missing1'></div>
+
 
 <script>
 /*
@@ -28,97 +29,117 @@ The Graph
 
 	//i learned much of d3 graphs from here:
 	//http://www.sitepoint.com/creating-simple-line-bar-charts-using-d3-js/
-	var lineData = [{
-	  x: 1,
-	  y: 5
-	}, {
-	  x: 20,
-	  y: 20
-	}, {
-	  x: 40,
-	  y: 10
-	}, {
-	  x: 60,
-	  y: 40
-	}, {
-	  x: 80,
-	  y: 5
-	}, {
-	  x: 100,
-	  y: 60
-	}];
-	var vis = d3.select('#the_graph'),
-	    WIDTH = 800,
-	    HEIGHT = 480,
-	    MARGINS = {
-	      top: 20,
-	      right: 20,
-	      bottom: 20,
-	      left: 50
-	    },
-	    xRange = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(lineData, function(d) {
-	      return d.x;
-	    }), d3.max(lineData, function(d) {
-	      return d.x;
-	    })]),
-	    yRange = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min(lineData, function(d) {
-	      return d.y;
-	    }), d3.max(lineData, function(d) {
-	      return d.y;
-	    })]),
-	    xAxis = d3.svg.axis()
-	      .scale(xRange)
-	      .tickSize(5)
-	      .tickSubdivide(true),
-	    yAxis = d3.svg.axis()
-	      .scale(yRange)
-	      .tickSize(5)
-	      .orient('left')
-	      .tickSubdivide(true);
-	 
-	vis.append('svg:g')
-	  .attr('class', 'x axis')
-	  .attr('transform', 'translate(0,' + (HEIGHT - MARGINS.bottom) + ')')
-	  .call(xAxis);
-	 
-	vis.append('svg:g')
-	  .attr('class', 'y axis')
-	  .attr('transform', 'translate(' + (MARGINS.left) + ',0)')
-	  .call(yAxis);
-	  
-	/*
-	function feed_live_get_cache(feed_axis_id){
-		//This will get the data and then colorize the pretty printed data
-		
-		var feed_axis_ids = {{=XML(feed_axis_ids)}};
-		var cache;
-		for (var i = 0; i < feed_axis_ids.length; i++){
-			
-		}
-	  	for (var i in feed_axis_ids) {
-			var url = "{{=URL('service', 'feed_live_get_cache.json')}}" + "/" + feed_axis_ids[i];
-			jQuery.getJSON(url, function(json_data){
-				for (var i = 0; i < json_data.length; i++){
-										
-					}
-				}
-			}
-		}
-	*/
-	var lineFunc = d3.svg.line()
-	  .x(function(d) {
-	    return xRange(d.x);
-	  })
-	  .y(function(d) {
-	    return yRange(d.y);
-	  })
-	  .interpolate('linear');
-	vis.append('svg:path')
-	  .attr('d', lineFunc(lineData))
-	  .attr('stroke', 'blue')
-	  .attr('stroke-width', 2)
-	  .attr('fill', 'none');
-	  
 
+	$(document).ready(function() {
+
+		var data = 
+			[
+			    [
+			        {
+			            "date": "2014-01-01",
+			            "value": 10234000
+			        },
+			        {
+			            "date": "2014-01-02",
+			            "value": 10373978
+			        },
+			        {
+			            "date": "2014-01-03",
+			            "value": 10433459
+			        }
+			    ], 
+			    [
+			        {
+			            "date": "2014-01-01",
+			            "value2": 1230000
+			        },
+			        {
+			            "date": "2014-01-02",
+			            "value2": 10372348
+			        },
+			        {
+			            "date": "2014-01-03",
+			            "value2": 10493749
+			        }
+			    ], 
+			    [
+			        {
+			            "date": "2014-01-01",
+			            "value3": 100056700
+			        },
+			        {
+			            "date": "2014-01-02",
+			            "value3": 10379978
+			        },
+			        {
+			            "date": "2014-01-03",
+			            "value3": 10478949
+			        }
+			    ] 		
+			]  
+
+		//data = convert_dates(data, 'date');
+		
+		var torso = {};
+		torso.width = 375;
+		torso.height = 200;
+		torso.right = 20;
+		/*
+	    //var all_the_data = clone(data[0]);
+        var all_the_data = JSON.parse(JSON.stringify(data[0]));
+	    for (var i = 1; i < data.length; i ++){
+	        for (var j=0; j < data[i].length; j++){
+	            if (i==2 && all_the_data[j]['date'] < new Date('2014-02-01')){
+	                // pass
+	            } else if (i==1 && all_the_data[j]['date'] > new Date('2014-03-22')) {
+	                // pass
+	            } else {
+	                all_the_data[j]['value'+(i+1)] = data[i][j].value;    
+	
+	            }
+	        }
+	    }*/
+	    var data2 = [
+				{
+					"date": "2014-01-01",
+				    "value": 100056700
+				},
+				{
+					"date": "2014-01-02",
+				    "value": 110059000
+				},
+				{
+				    "date": "2014-01-03",
+				    "value": 10379978
+				},
+				{
+				    "date": "2014-01-08",
+				    "value": 10478949
+				},
+				{
+					"date": "2014-01-02",
+				    "value2": 10456700
+				},				
+				{
+					"date": "2014-01-09",
+				    "value2": 102654700
+				}
+	    	]
+	    data2 = convert_dates(data2, 'date');
+	    data_graphic({
+	        title:"Handling Different Sized Lines in a Single Array",
+	        description: "How do you handle data with multiple implied time series lengths?",
+	        data: data2,
+	        width: torso.width*2,
+	        height: torso.height,
+	        right: torso.right,
+	        target: '#missing1',
+	        linked: true,
+	        y_extended_ticks: true,
+	        x_accessor: 'date',
+	        y_accessor: ['value', 'value2'] //['value', 'value2', 'value3']
+	    });
+	    
+	});
 </script>
 {{#=BEAUTIFY(response._vars)}}
