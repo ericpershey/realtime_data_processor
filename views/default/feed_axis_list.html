@@ -1,5 +1,11 @@
 {{extend 'layout.html'}}
-<h3>Feed Conf {{= A(feed.name, _href=URL('feed_list/%s' % (feed.id))) if feed != None else None }}</h3>
+<h3>Feed {{=feed.name}}, {{= A('back to feed list', _href=URL('feed_list'))}}</h3>
+<ul>
+<li>To view the realtime feed of this feed, click {{=A('Graph', _href=URL('feed_graph/%s' % (feed.id)))}}.</li>
+<li>You can click the feed_axis name and it will display the last row of data in realtime.</li>  
+<li>You can also click sparkline next to it to see a simple sparkline of the data.</li>
+<li>Refresh the page after you add an access to see more options.</li>
+</ul>
 <h3>{{=A('Graph', _href=URL('feed_graph/%s' % (feed.id)))}}</h3>
 {{if rows is not None:}}
 	<form action="#" enctype="multipart/form-data" id="the_form" method="post">

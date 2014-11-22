@@ -98,6 +98,8 @@ auth.settings.reset_password_requires_verification = True
 #use_janrain(auth, filename='private/janrain.key')
 
 #Table Definitions
+
+#this is the container and configuration for the feed.
 db.define_table("feed",
     Field('name', 'string', unique=True, requires=IS_NOT_EMPTY()),
     #I had some major problems in this simple form after adding the IS_IN_SET requirement
@@ -108,11 +110,13 @@ db.define_table("feed",
     auth.signature,
     )
 
+#this is an axis that belongs to a feed
 db.define_table('feed_axis',
     Field('name', 'string', requires=IS_NOT_EMPTY()),
     Field("feed_id", 'reference feed', requires=IS_NOT_EMPTY()),
     )
 
+#this is the data storage, this data belongs to a axis
 db.define_table('feed_data',
     #this really isn't the best way, these will have to be cast later based
     #on the config.  This might be fast enough and allow for much easier

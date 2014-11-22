@@ -50,12 +50,12 @@ def _():
             ]
         )]
 
-    response.menu += [
-        (SPAN('Services', _class='highlighted'), False, URL('service', 'index'), [
-            #(T('feed_input'), False, URL('service', 'feed_input')),
-            #(T('feed_output'), False, URL('service', 'feed_output')),
-            ]
-        )]
+#    response.menu += [
+#        (SPAN('Services', _class='highlighted'), False, URL('service', 'index'), [
+#            #(T('feed_input'), False, URL('service', 'feed_input')),
+#            #(T('feed_output'), False, URL('service', 'feed_output')),
+#            ]
+#        )]
     response.menu += [
         (SPAN('web2py', _class='highlighted'), False, 'http://web2py.com', [
         (T('This App'), False, URL('admin', 'default', 'design/%s' % app), [

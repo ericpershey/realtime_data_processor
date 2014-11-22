@@ -16,18 +16,19 @@ def ajax_feed_delete():
 def feed_list():
     '''this will display the status of a feed or show the list of available 
     feeds'''
+    db.feed.feed_owner_id.default = auth.user.id
     form = SQLFORM(db.feed)
-    if request.vars:
-        if form.accepts(request, session):
-            response.flash = "Created new Feed"
-        elif form.errors:
-            response.flash = "Errors:%s" % BEAUTIFY(form.errors)
-        else:
-            response.flash = "Failed"
+
+    if form.accepts(request, session):
+        response.flash = "Created new Feed"
+    elif form.errors:
+        response.flash = "Errors:%s" % BEAUTIFY(form.errors)
+    else:
+        response.flash = "Please fill out the form at add a feed"
+
 
     auth_query = db.feed.feed_owner_id == auth.user
     rows = db(auth_query).select()
-
 
     return dict(rows=rows, form=form)
 
@@ -36,8 +37,11 @@ def ajax_axis_add():
     '''This will handle the adding of axes via ajax
     '''
     try:
+        auth_query = db.feed.feed_owner_id == auth.user
         feed_id = int(request.args(0))
-        feed = db(db.feed.id == feed_id).select().first()
+        feed = db((db.feed.id == feed_id) & auth_query).select().first()
+        if not feed:
+            raise HTTP(403, "No feed found for selected input")
         #This is kind of inefficient but checks to make sure there isn't one already in the database.
         feed_axis = db((db.feed_axis.name == request.vars['name']) & (db.feed_axis.feed_id == feed.id)).select().first()
         if feed_axis is None:
@@ -67,7 +71,14 @@ def ajax_axis_add():
 def ajax_axis_delete():
     '''this will delete axis the record that only the user has access to'''
     auth_query = db.feed.feed_owner_id == auth.user
-    db((db.feed_axis.id == request.args(0)) & (auth_query)).delete()
+    #get the feed first with auth
+    row = db((db.feed.id == db.feed_axis.feed_id) & (db.feed_axis.id == request.args(0)) & (auth_query)).select().first()
+    if row == None:
+        raise HTTP(403, "No feed found for selected input")
+
+    #now get the row to delete 
+    #rows = db((db.feed_axis.id == request.args(0)) & (db.feed_axis.feed_id == row.feed.id)).select()
+    db((db.feed_axis.id == request.args(0)) & (db.feed_axis.feed_id == row.feed.id)).delete()
     db.commit()
     return {}
 
@@ -77,8 +88,11 @@ def feed_axis_list():
     auth_query = db.feed.feed_owner_id == auth.user
     count = db.feed_data.x.count().with_alias('count')
     feed_id = request.args(0)
-    feed = db(db.feed.id == feed_id).select().first()
-    #this was done without count
+    feed = db((db.feed.id == feed_id) & (auth_query)).select().first()
+    if not feed:
+        raise HTTP(403, "No feed found for selected input")
+
+    #this was done without count1
     #            this isolates it to the axis                auth            this isolates it to join
     #rows = db((db.feed_axis.feed_id == feed_id) & (auth_query) & (db.feed_axis.feed_id == db.feed.id)).select(db.feed_axis.ALL, db.feed.ALL)
     #with count

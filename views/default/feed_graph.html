@@ -9,7 +9,9 @@
 <h2>Feed:{{=A("%s" % (feed.name), _href=URL('feed_axis_list/%s' % (feed.id))) if feed != None else None }}</h2>
 
 
-The Graph
+<h3>The Graph</h3>
+<p>Below you will find the realtime graph if there is data in the last 12 hours.</p>
+<p>Example scripts such as {{=A('realtime_data_source_example.py', _href='https://github.com/ericpershey/realtime_data_processor/blob/master/realtime_data_source_example.py')}} can assit in getting a feed working.</p>
 <div class='col-lg-12 text-center extended-y-ticks' id='feed_graph'></div>
 
 
@@ -153,7 +155,7 @@ The Graph
 				 */
 				setTimeout(function(){
 					//for each axis do this:
-					
+					//this sets up the max_ids for pulling data only from that id forward
 					for (var i = 0; i < y_accessor.length; i++) {
 						var feed_name = '{{=feed.name}}';
 						axis_name = y_accessor[i];
@@ -173,7 +175,7 @@ The Graph
 							non_null_y_accessor.push(y_accessor[i]);
 						}
 					}
-					
+					//display/update the graph
 				    data_graphic({
 				        title:"Data for Feed {{=feed.name}}",
 				        description: "Feed Data",
@@ -184,7 +186,6 @@ The Graph
 				        target: '#feed_graph',
 				        interpolate: 'basic',
 				        area: false,
-				        use_data_y_min: true,
 				        min_y: min_y,
 				        max_y: max_y,
 				        //format: 'percentage',
@@ -194,10 +195,10 @@ The Graph
 				        x_accessor: x_accessor, //'date',
 				        y_accessor: non_null_y_accessor//y_accessor//['value', 'value2'] 
 				    });
-				    console.log("POLLING");
+				    //repeat
 					poll();
 					}
-				, 2000);
+				, 1000);
 			}
 		prime_cache(poll);
 	});
