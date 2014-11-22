@@ -27,7 +27,7 @@ How to use
 
 Scripted data input.
 Once you have a feed defined, you can run one of the feed examples.
-- login as ep@nothing.com with password 1234
+- login as ep@nu_ll.com with password 1234
 - run python realtime_data_source_example.py in a seperate terminal.
 - navigate to http://127.0.0.1:8000/realtime_data_processor/default/feed_graph/3
 
@@ -42,8 +42,8 @@ I normally have another window open with the following command at the root of we
 Note: I have found some issues running the scheduler when you try to submit forms.  If you have problems, run without the scheduler.
 	
 Default users 
-* ep@nothing.com password of 1234
-* ap@nothing.com password of 1234
+* ep@nu_ll.com password of 1234
+* ap@nu_ll.com password of 1234
 * Each have thier own feeds they can see
 	
 scheduler.py

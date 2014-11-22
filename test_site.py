@@ -25,7 +25,7 @@ def test_site(base_path):
     urls = []
     #correct code, url, user, password
 
-    user = 'ep@nothing.com'
+    user = 'ep@nu_ll.com'
     password = '1234'
     urls.append((200, '/default/feed_list', user, password))
     urls.append((200, '/default/feed_axis_list', user, password))
@@ -50,7 +50,7 @@ def test_site(base_path):
     urls.append((403, '/service/feed_cache.json/3', user, password))
     urls.append((200, '/default/feed_axis_list/3', user, password))
 
-    user = 'ap@nothing.com'
+    user = 'ap@nu_ll.com'
     password = '1234'
     urls.append((200, '/default/feed_list', user, password))
     urls.append((200, '/default/feed_axis_list', user, password))

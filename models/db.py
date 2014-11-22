@@ -173,6 +173,8 @@ def get_cast_func(cast_str):
         func = float
     elif cast_str == 'int':
         func = int
+    elif cast_str == 'integer':
+        func = int
     else:
         raise ExceptionBadCast("%s is not a valid axis cast." % cast_str)
     return func
@@ -210,15 +212,15 @@ if db(db.feed).isempty() or recreate_database:
     #password = db.auth_user.password.validate('1234')[0],
     #password = CRYPT(digest_alg='sha512', salt=True)('1234')
     password = str(CRYPT(key=auth.settings.hmac_key)('1234')[0])
-    db.auth_user.insert(password=password, email='ep@nothing.com',
+    db.auth_user.insert(password=password, email='ep@nu_ll.com',
         first_name='e', last_name='p')
-    db.auth_user.insert(password=password, email='ap@nothing.com',
+    db.auth_user.insert(password=password, email='ap@nu_ll.com',
         first_name='a', last_name='p')
     db.commit()
 
     #create some users and assign them to feeds.
-    feed_owner_a = db(db.auth_user.email == 'ep@nothing.com').select().first()
-    feed_owner_b = db(db.auth_user.email == 'ap@nothing.com').select().first()
+    feed_owner_a = db(db.auth_user.email == 'ep@nu_ll.com').select().first()
+    feed_owner_b = db(db.auth_user.email == 'ap@nu_ll.com').select().first()
     db.commit()
 
     #clear the current data
@@ -227,7 +229,7 @@ if db(db.feed).isempty() or recreate_database:
     db.feed.truncate()
 
     #create the feed, axis and some data
-    feed_id = db.feed.insert(name='manual_feed_a', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner_a.id)
+    feed_id = db.feed.insert(name='manual_feed_a', x_cast='datetime', y_cast='int', feed_owner_id=feed_owner_a.id)
     feed_axis_id = db.feed_axis.insert(feed_id=feed_id, name='axis_a00')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='0')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='2')
@@ -235,7 +237,7 @@ if db(db.feed).isempty() or recreate_database:
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-13', y='3')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-14', y='2')
 
-    feed_id = db.feed.insert(name='manual_feed_b', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner_a.id)
+    feed_id = db.feed.insert(name='manual_feed_b', x_cast='datetime', y_cast='int', feed_owner_id=feed_owner_a.id)
     feed_axis_id = db.feed_axis.insert(feed_id=feed_id, name='axis_b00')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='40')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='72')
@@ -250,7 +252,7 @@ if db(db.feed).isempty() or recreate_database:
     feed_axis_id = db.feed_axis.insert(feed_id=feed_id, name='axis_at_45_degrees')
     feed_axis_id = db.feed_axis.insert(feed_id=feed_id, name='axis_at_90_degrees')
 
-    feed_id = db.feed.insert(name='manual_feed_aj', x_cast='datetime', y_cast='integer', feed_owner_id=feed_owner_b.id)
+    feed_id = db.feed.insert(name='manual_feed_aj', x_cast='datetime', y_cast='int', feed_owner_id=feed_owner_b.id)
     feed_axis_id = db.feed_axis.insert(feed_id=feed_id, name='axis_aj_00')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-10', y='1')
     feed_data_id = db.feed_data.insert(feed_axis_id=feed_axis_id, x='2014-10-11', y='3')

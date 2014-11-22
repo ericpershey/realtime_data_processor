@@ -98,12 +98,15 @@ def feed_live_axis():
     if row:
         #now lets get the one right before it
         row_prev = db((db.feed_data.feed_axis_id == feed_axis.id) & (db.feed_data.entry_time < row.entry_time)).select(orderby=db.feed_data.entry_time).last()
-        #This is to make the format look nicer
-        if row_prev.y == row.y: #constant
-            state = 0
-        elif row_prev.y < row.y: #lower
-            state = 1
-        else: #raise
+        if row_prev:
+            #This is to make the format look nicer
+            if row_prev.y == row.y: #constant
+                state = 0
+            elif row_prev.y < row.y: #lower
+                state = 1
+            else: #raise
+                state = -1
+        else:
             state = -1
         dct = {'id':row.id, 'x':row.x, 'y':row.y, 'entry_time':row.entry_time, 'state':state}
     else:

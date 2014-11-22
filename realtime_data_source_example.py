@@ -27,17 +27,17 @@ def main():
         axis_name = 'axis_at_0_degrees'
         url = "http://127.0.0.1:8000/realtime_data_processor/service/feed_input.json/%(feed_name)s/%(axis_name)s?x=%(x)s&y=%(y)s"
         url = url % {'feed_name':feed_name, 'axis_name':axis_name, 'x':x, 'y':y_a}
-        response = requests.get(url, auth=('ep@nothing.com', '1234'))
+        response = requests.get(url, auth=('ep@nu_ll.com', '1234'))
 
         axis_name = 'axis_at_45_degrees'
         url = "http://127.0.0.1:8000/realtime_data_processor/service/feed_input.json/%(feed_name)s/%(axis_name)s?x=%(x)s&y=%(y)s"
         url = url % {'feed_name':feed_name, 'axis_name':axis_name, 'x':x, 'y':y_b}
-        response = requests.get(url, auth=('ep@nothing.com', '1234'))
+        response = requests.get(url, auth=('ep@nu_ll.com', '1234'))
 
         axis_name = 'axis_at_90_degrees'
         url = "http://127.0.0.1:8000/realtime_data_processor/service/feed_input.json/%(feed_name)s/%(axis_name)s?x=%(x)s&y=%(y)s"
         url = url % {'feed_name':feed_name, 'axis_name':axis_name, 'x':x, 'y':y_c}
-        response = requests.get(url, auth=('ep@nothing.com', '1234'))
+        response = requests.get(url, auth=('ep@nu_ll.com', '1234'))
         time.sleep(1)
         if y > 2 * math.pi:
             y = 0.0
