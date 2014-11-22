@@ -46,6 +46,7 @@ def feed_input():
         #print "Error:%s" % str(err)
         #error_str = str(err)
         error_str = "\n".join(extract_traceback())
+        response.status = 500
         return dict(error=error_str)
     return locals()
 
@@ -101,26 +102,43 @@ def feed_live_axis():
 @auth.requires_login()
 def feed_cache():
     '''This will grab the last 32 records to populate the cache'''
-    row_count = 32
+    row_count = 96
     feed_id = request.args(0)
+    feed = db(db.feed.id == feed_id).select().first()
+    y_func = get_cast_func(feed.y_cast)
+    #this could be a variable in the database for the feed
+    past = request.now - datetime.timedelta(hours=12)
+    past_query = db.feed_data.entry_time > past
     #get each axis
     axes = db(db.feed_axis.feed_id == feed_id).select(db.feed_axis.name, db.feed_axis.id)
     #get each axes data
     x_accessor = 'date'
     y_accessor = set()
     max_ids = {}
+    major_min_y = None
+    major_max_y = None
     data_lst = []
     for axis in axes:
         #give me the last 32 records
         #reverse order with limit
-        rows = db(db.feed_data.feed_axis_id == axis.id).select(orderby= ~db.feed_data.entry_time, limitby=(0, row_count))
+        rows = db((db.feed_data.feed_axis_id == axis.id) & (past_query)).select(orderby= ~db.feed_data.entry_time, limitby=(0, row_count))
         y_accessor.add(axis.name)
-        axis_data_lst, max_id = process_row(rows, axis.name)
+        axis_data_lst, max_id, min_y, max_y = process_row(rows, axis.name, y_func)
+        print min_y, max_y
         max_ids[axis.name] = max_id
+        if major_min_y == None:
+            major_min_y = min_y
+        else:
+            if min_y < major_min_y:
+                major_min_y = min_y
+        if major_max_y == None:
+            major_max_y = max_y
+        else:
+            if max_y > major_max_y:
+                major_max_y = max_y
         data_lst.extend(axis_data_lst)
-
-
-    return {'data':data_lst, 'y_accessor':list(y_accessor), 'x_accessor':x_accessor, 'max_ids':max_ids}
+    print len(data_lst), list(y_accessor), x_accessor, max_ids
+    return {'data':data_lst, 'y_accessor':list(y_accessor), 'x_accessor':x_accessor, 'max_ids':max_ids, 'min_y':major_min_y, 'max_y': major_max_y}
 
 @auth.requires_login()
 def feed_live_from_data_id():
@@ -131,14 +149,18 @@ def feed_live_from_data_id():
     feed_name = request.args(0)
     axis_name = request.args(1)
     data_id = int(request.args(2))
+    past = request.now - datetime.timedelta(hours=12)
+    past_query = db.feed_data.entry_time > past
+
     try:
-        feed_conf, feed_axis = get_feed_axis(feed_name, axis_name)
+        feed, feed_axis = get_feed_axis(feed_name, axis_name)
     except ExceptionNotFound, err:
         return dict(error="Please specifiy a feed and feed axis")
     if feed_name == None or feed_axis == None:
         return dict(error="Please specifiy a feed and feed axis")
+    y_func = get_cast_func(feed.y_cast)
 
-    rows = db((db.feed_data.feed_axis_id == feed_axis.id) & (db.feed_data.id > data_id)).select(orderby=db.feed_data.entry_time)
-    axis_data_lst, max_id = process_row(rows, feed_axis.name)
-    return dict(data=axis_data_lst, max_id=max_id)
+    rows = db((db.feed_data.feed_axis_id == feed_axis.id) & (db.feed_data.id > data_id) & (past_query)).select(orderby=db.feed_data.entry_time)
+    axis_data_lst, max_id, min_y, max_y = process_row(rows, feed_axis.name, y_func)
+    return dict(data=axis_data_lst, max_id=max_id, min_y=min_y, max_y=max_y)
 

@@ -2,9 +2,11 @@
 <h3>Feed List</h3>
 {{if rows is not None:}}
 	{{=TABLE(
+		TR(TH('Name'), TH('x_cast'), TH('y_cast')),
 		[
-			TR(A(row.name, 
+			TR(A(row.name,
 			_href=URL('feed_axis_list/%s' % (row.id))),
+			row.x_cast, row.y_cast,
 			INPUT(_type='button', _class="delete_feed", _value="Delete", 
 				_onclick = """
 					//lets make sure they want to do this

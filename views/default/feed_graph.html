@@ -33,6 +33,8 @@ The Graph
 	var x_accessor;
 	var y_accessor;
 	var max_ids = null;
+	var min_y = null;
+	var max_y = null;
 	$(document).ready(function() {
 
 	/*
@@ -41,9 +43,17 @@ The Graph
 		 */
 
 		
-		function prime_cache(){
+		function prime_cache(poll_func){
+			/*
+			 * This is the fucntion that will prepare the data for the generation
+			 * of the graph.  It will pull the past and then get the new final id
+			 * so that you can pull from that id forward.  This will also get the 
+			 * min and max y for each axis.
+			 */
+			console.log('priming cache');
 			var url = "{{=URL('service', 'feed_cache.json', args=[feed.id])}}";
 			jQuery.getJSON(url, function(json_data){
+				console.log("data received");
 				//var json_str_previous = localStorage.getItem('current_data');
 				x_accessor = json_data.x_accessor;
 				y_accessor = json_data.y_accessor;
@@ -59,6 +69,13 @@ The Graph
 						} else {
 							max_ids[y_accessor[i]] = 0;	
 						}
+						if (json_data.min_y != null){
+							min_y = json_data.min_y;
+						}
+						if (json_data.max_y != null){
+							max_y = json_data.max_y;
+						}
+						
 					}					
 					
 					max_ids = json_data.max_ids;
@@ -71,6 +88,7 @@ The Graph
 				}
 				//var json_str = JSON.stringify(json_data);
 				//localStorage.setItem('data', json_str);
+				poll_func();
 			});
 		}
 	
@@ -85,12 +103,18 @@ The Graph
 				if (json_data.max_id != null){
 					the_data.push.apply(the_data, json_data.data);
 					max_ids[axis_name] = json_data.max_id;
+					if (json_data.min_y < min_y){
+						min_y = json_data.min_y;
+					}
+					if (json_data.max_y > max_y){
+						max_y = json_data.max_y;
+					}
 				} 
 			});
 		}
 
 		var torso = {};
-		torso.width = 800;
+		torso.width = 580;
 		torso.height = 480;
 		torso.right = 20;
 		/*
@@ -145,11 +169,11 @@ The Graph
 					var non_null_y_accessor = [];
 					for (var i = 0; i < y_accessor.length; i++){
 						console.log(y_accessor[i]);
-						if (max_ids[y_accessor[i]] != null){
+						if (max_ids[y_accessor[i]] != 0){
 							non_null_y_accessor.push(y_accessor[i]);
 						}
 					}
-					console.log(non_null_y_accessor);
+					
 				    data_graphic({
 				        title:"Data for Feed {{=feed.name}}",
 				        description: "Feed Data",
@@ -160,6 +184,9 @@ The Graph
 				        target: '#feed_graph',
 				        interpolate: 'basic',
 				        area: false,
+				        use_data_y_min: true,
+				        min_y: min_y,
+				        max_y: max_y,
 				        //format: 'percentage',
 				        //show_confidence_band: ['l', 'u'],
 				        //linked: true,
@@ -167,15 +194,12 @@ The Graph
 				        x_accessor: x_accessor, //'date',
 				        y_accessor: non_null_y_accessor//y_accessor//['value', 'value2'] 
 				    });
+				    console.log("POLLING");
 					poll();
 					}
-				, 1000);
+				, 2000);
 			}
-		prime_cache();
-		poll();	    
-	    
-
-	    
+		prime_cache(poll);
 	});
 </script>
 {{#=BEAUTIFY(response._vars)}}

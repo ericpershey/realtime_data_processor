@@ -130,7 +130,7 @@ def sin_wave_over_time_in_seconds():
 #check to see if the named task is in the scheduler.
 status = scheduler.task_status(db.scheduler_task.task_name == 'sin_wave')
 if status == None:
-    scheduler.queue_task(sin_wave_over_time_in_seconds, task_name='sin_wave', repeats=0, retry_failed= -1, period=2)
+    scheduler.queue_task(sin_wave_over_time_in_seconds, task_name='sin_wave', repeats=0, retry_failed= -1, period=30)
 else:
     pass
     #code to modify a task as i could not find an easy way to delete them from the scheduler interface

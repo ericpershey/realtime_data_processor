@@ -283,16 +283,30 @@ def date_parse(dt_str):
                 raise
     return dt
 
-def process_row(rows, axis_name):
+def process_row(rows, axis_name, y_func):
+    '''This will process the rows from the database and prepare them to send
+    back to the browser
+    It needs the name of the axis to correctly identify the y value for that axis.
+    This will be used when sending in the axes to display on the graph.
+    
+    Returns:
+        list of data
+        the max_id of the list
+        the min y value of the list
+        the max y value of the list
+    '''
     data_lst = []
     max_id = None
     for row in rows:
         #it would be nice to use dateutil here, but reducing dependancies
         dt = date_parse(row.x)
-        dct = {axis_name:row.y, 'date':datetime_to_epochtime(dt)}
+        dct = {axis_name:y_func(row.y), 'date':datetime_to_epochtime(dt)}
         data_lst.append(dct)
 
         #update the max ids for each axis
         if row.id > max_id:
             max_id = row.id
-    return data_lst, max_id
+
+    min_y = min([dct[axis_name] for dct in data_lst]) if len(data_lst) > 0 else None
+    max_y = max([dct[axis_name] for dct in data_lst]) if len(data_lst) > 0 else None
+    return data_lst, max_id, min_y, max_y
